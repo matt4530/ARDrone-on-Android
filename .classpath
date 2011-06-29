@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="gen"/>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry kind="lib" path="C:/Documents and Settings/Administrator/Desktop/lib/log4j-1.2.16.jar"/>
+	<classpathentry kind="lib" path="C:/Documents and Settings/Administrator/Desktop/lib/hidapi.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/Documents and Settings/Administrator/Desktop/lib/SteelSeries/trident-6.2.jar"/>
+	<classpathentry kind="lib" path="C:/Documents and Settings/Administrator/Desktop/lib/SteelSeries/SteelSeries-3.9.2.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
