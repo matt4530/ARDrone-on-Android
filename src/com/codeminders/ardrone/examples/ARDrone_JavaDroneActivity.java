@@ -1,8 +1,8 @@
 package com.codeminders.ardrone.examples;
 
 import android.app.Activity;
-import android.util.Log;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.ARDrone.VideoChannel;
@@ -37,26 +37,24 @@ public class ARDrone_JavaDroneActivity extends Activity {
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				drone.clearImageListeners();
-				drone.clearNavDataListeners();
-				drone.clearEmergencySignal();
-				drone.disconnect();
 				Log.v("DRONE", "Caught exception");
 			}
 			drone.selectVideoChannel(VideoChannel.HORIZONTAL_ONLY);
 			videoPanel.setDrone(drone);
-			Log.v("DRONE", "VIDEO PANEL IS NULL = " + (videoPanel._video == null));
 
 			setTitle(ACTIVITY_SERVICE);
 
 			// do TRIM operation
 			drone.trim();
-			Log.v("DRONE", "VIDEO PANEL IS NULL = " + (videoPanel._video == null));
+			drone.playLED(1, 5, 5000);
+			//drone.takeOff();
+			//Log.v("DRONE", "VIDEO PANEL IS NULL = " + (videoPanel._video == null));
 			Thread.sleep(4000);
-			Log.v("DRONE", "VIDEO PANEL IS NULL = " + (videoPanel._video == null));
-			drone.disconnect();
-			Log.v("DRONE", "VIDEO PANEL IS NULL = " + (videoPanel._video == null));
-			
+			//drone.land();
+			//Log.v("DRONE", "VIDEO PANEL IS NULL = " + (videoPanel._video == null));
+			//drone.disconnect();
+			//Log.v("DRONE", "VIDEO PANEL IS NULL = " + (videoPanel._video == null));
+			 drone.disconnect();
 
 		} catch (Throwable e) {
 			e.printStackTrace();

@@ -109,10 +109,10 @@ public class ARDrone
     private Object                          state_mutex       = new Object();
 
     private static final int                NAVDATA_PORT      = 5554;
-    private static final int                VIDEO_PORT        = 5556;//5555;
+    private static final int                VIDEO_PORT        = 5555;//5555;
     // private static final int CONTROL_PORT = 5559;
 
-    private static byte[]                   DEFAULT_DRONE_IP  = { (byte) 192, (byte) 168, (byte) 1, (byte) 2 };
+    private static byte[]                   DEFAULT_DRONE_IP  = { (byte) 192, (byte) 168, (byte) 1, (byte) 1 };
 
     private InetAddress                     drone_addr;
     private DatagramSocket                  cmd_socket;
