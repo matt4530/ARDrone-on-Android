@@ -6,8 +6,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.codeminders.ardrone.VisionTag.VisionTagType;
+import android.util.Log;
 
+import com.codeminders.ardrone.VisionTag.VisionTagType;
 public class NavData
 {
     public static enum ControlAlgorithm
@@ -303,8 +304,7 @@ public class NavData
         data.emergency = (state & (1 << 31)) != 0;
     }
 
-    @SuppressWarnings("unused")
-    private static void printState(NavData data)
+    public static void printState(NavData data)
     {
         StringBuffer sb = new StringBuffer();
 
@@ -350,7 +350,7 @@ public class NavData
         sb.append("Z velocity: " + data.getVz() + "\n");
         sb.append("Vision Tags: " + data.getVisionTags() + "\n");
 
-        log.debug("State: " + sb.toString());
+        Log.v("Drone Control", "NAV DATA: State: " + sb.toString());
     }
 
     protected Mode             mode;

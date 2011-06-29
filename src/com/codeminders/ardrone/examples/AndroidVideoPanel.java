@@ -37,7 +37,7 @@ public class AndroidVideoPanel extends View implements DroneVideoListener {
 		//}
 		Log.v("DRONE", "Recieved video data");
 		if(rgbArray.length == 0) return;
-		_video.recycle();
+		if(_video != null)_video.recycle();
 		_video = Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.ALPHA_8);
 		_x = startX;
 		_y = startY;
