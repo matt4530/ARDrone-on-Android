@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="fill_parent"
-	android:orientation="vertical">
+	android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical">
 	<TextView android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:text="@string/hello"
 		android:id="@+id/statusBar" android:gravity="center_horizontal" />
-	<ProgressBar android:layout_height="wrap_content"
-		style="?android:attr/progressBarStyleHorizontal"
-		android:id="@+id/progressBar"
-		android:layout_width="match_parent"></ProgressBar>
+	<LinearLayout android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/linearLayout1">
+		<Button android:layout_height="wrap_content" android:id="@+id/button1" android:layout_width="wrap_content" android:text="Connect to ARDrone"></Button>
+		<ProgressBar style="?android:attr/progressBarStyleSmall" android:visibility="invisible" android:id="@+id/progressBar1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_vertical"></ProgressBar>
+	</LinearLayout>
 </LinearLayout>
