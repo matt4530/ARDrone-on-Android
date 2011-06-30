@@ -9,6 +9,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.codeminders.ardrone.ARDrone;
+import com.profusiongames.R;
 
 public class ARDrone_JavaDroneActivity extends Activity {
 	/** Called when the activity is first created. */
@@ -85,6 +86,7 @@ public class ARDrone_JavaDroneActivity extends Activity {
 			drone = new ARDrone();
 			drone.connect();
 			drone.clearEmergencySignal();
+			sleep(500);
 			drone.waitForReady(CONNECT_TIMEOUT);
 			drone.playLED(1,20,5);
 			connectionStartButton.setText("Connected to ARDrone");
