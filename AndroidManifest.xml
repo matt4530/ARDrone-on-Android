@@ -72,7 +72,6 @@
 	<uses-permission android:name="android.permission.SET_WALLPAPER" />
 	<uses-permission android:name="android.permission.SET_WALLPAPER_HINTS" />
 	<uses-permission android:name="android.permission.SIGNAL_PERSISTENT_PROCESSES" />
-	<uses-permission android:name="android.permission.STATUS_BAR" />
 	<uses-permission android:name="android.permission.SUBSCRIBED_FEEDS_READ" />
 	<uses-permission android:name="android.permission.SUBSCRIBED_FEEDS_WRITE" />
 	<uses-permission android:name="android.permission.USE_CREDENTIALS" />

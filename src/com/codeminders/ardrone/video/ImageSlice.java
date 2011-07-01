@@ -1,4 +1,3 @@
-
 package com.codeminders.ardrone.video;
 
 // Copyright � 2007-2011, PARROT SA, all rights reserved.
@@ -32,15 +31,13 @@ package com.codeminders.ardrone.video;
 // may be used to endorse or promote products derived from this software without
 // specific prior written permission.
 
-class ImageSlice
-{
-    MacroBlock[] MacroBlocks;
+class ImageSlice {
+	MacroBlock[] MacroBlocks;
 
-    ImageSlice(int macroBlockCount)
-    {
-        MacroBlocks = new MacroBlock[macroBlockCount];
+	ImageSlice(int macroBlockCount) {
+		MacroBlocks = new MacroBlock[macroBlockCount];
 
-        for(int index = 0; index < macroBlockCount; index++)
-            MacroBlocks[index] = new MacroBlock();
-    }
+		for (int index = 0; index < macroBlockCount; index++)
+			MacroBlocks[index] = new MacroBlock();
+	}
 }

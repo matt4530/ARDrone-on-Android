@@ -1,4 +1,3 @@
-
 package com.codeminders.ardrone.video;
 
 import java.io.ByteArrayInputStream;
@@ -36,123 +35,103 @@ import java.nio.ByteBuffer;
 // may be used to endorse or promote products derived from this software without
 // specific prior written permission.
 
-public class uint
-{
-    private int base2;
+public class uint {
+	private int base2;
 
-    public uint(byte[] bp, int start)
-    {
-        try
-        {
-            byte[] b = new byte[4];
-            b[0] = bp[start + 3];
-            b[1] = bp[start + 2];
-            b[2] = bp[start + 1];
-            b[3] = bp[start + 0];
+	public uint(byte[] bp, int start) {
+		try {
+			byte[] b = new byte[4];
+			b[0] = bp[start + 3];
+			b[1] = bp[start + 2];
+			b[2] = bp[start + 1];
+			b[3] = bp[start + 0];
 
-            ByteArrayInputStream bas = new ByteArrayInputStream(b);
-            DataInputStream din = new DataInputStream(bas);
+			ByteArrayInputStream bas = new ByteArrayInputStream(b);
+			DataInputStream din = new DataInputStream(bas);
 
-            this.base2 = din.readInt();
-        } catch(Exception e)
-        {
-            throw new RuntimeException("error creating uint", e);
-        }
-    }
+			this.base2 = din.readInt();
+		} catch (Exception e) {
+			throw new RuntimeException("error creating uint", e);
+		}
+	}
 
-    public uint(ByteBuffer bp, int start)
-    {
-        try
-        {
-            ByteBuffer bb = ByteBuffer.allocate(4);
-            bb.put(bp.array()[start + 3]);
-            bb.put(bp.array()[start + 2]);
-            bb.put(bp.array()[start + 1]);
-            bb.put(bp.array()[start + 0]);
-//            bb.put(bp.get(start + 3));
-//            bb.put(bp.get(start + 2));
-//            bb.put(bp.get(start + 1));
-//            bb.put(bp.get(start    ));
-            bb.flip();
-            this.base2 = bb.getInt();
-        }
-        catch(Exception e)
-        {
-            throw new RuntimeException("error creating uint", e);
-        }
-    }
+	public uint(ByteBuffer bp, int start) {
+		try {
+			ByteBuffer bb = ByteBuffer.allocate(4);
+			bb.put(bp.array()[start + 3]);
+			bb.put(bp.array()[start + 2]);
+			bb.put(bp.array()[start + 1]);
+			bb.put(bp.array()[start + 0]);
+			// bb.put(bp.get(start + 3));
+			// bb.put(bp.get(start + 2));
+			// bb.put(bp.get(start + 1));
+			// bb.put(bp.get(start ));
+			bb.flip();
+			this.base2 = bb.getInt();
+		} catch (Exception e) {
+			throw new RuntimeException("error creating uint", e);
+		}
+	}
 
-    public uint(int base)
-    {
-        this.base2 = base;
-    }
+	public uint(int base) {
+		this.base2 = base;
+	}
 
-    public uint(uint that)
-    {
-        this.base2 = that.base2;
-    }
+	public uint(uint that) {
+		this.base2 = that.base2;
+	}
 
-    public uint and(int andval)
-    {
-        int retval = base2 & andval;
-        return new uint(retval);
-    }
+	public uint and(int andval) {
+		int retval = base2 & andval;
+		return new uint(retval);
+	}
 
-    public int flipBits()
-    {
-        int base = ~base2;
-        return base;
-    }
+	public int flipBits() {
+		int base = ~base2;
+		return base;
+	}
 
-    public int intValue()
-    {
-        return base2;
+	public int intValue() {
+		return base2;
 
-    }
+	}
 
-    public uint or(uint orval)
-    {
-        int retval = base2 | orval.base2;
-        return new uint(retval);
-    }
+	public uint or(uint orval) {
+		int retval = base2 | orval.base2;
+		return new uint(retval);
+	}
 
-    public uint shiftLeft(int i)
-    {
-        int base = base2;
-        base <<= i;
+	public uint shiftLeft(int i) {
+		int base = base2;
+		base <<= i;
 
-        return new uint(base);
-    }
+		return new uint(base);
+	}
 
-    public void shiftLeftEquals(int i)
-    {
-        int base = base2;
-        base <<= i;
-        base2 = base;
-    }
+	public void shiftLeftEquals(int i) {
+		int base = base2;
+		base <<= i;
+		base2 = base;
+	}
 
-    public uint shiftRight(int i)
-    {
-        int base = base2;
-        base = base >>> i;
-        return new uint(base);
-    }
+	public uint shiftRight(int i) {
+		int base = base2;
+		base = base >>> i;
+		return new uint(base);
+	}
 
-    public void shiftRightEquals(int i)
-    {
-        int base = base2;
-        base >>>= i;
-        base2 = base;
-    }
+	public void shiftRightEquals(int i) {
+		int base = base2;
+		base >>>= i;
+		base2 = base;
+	}
 
-    public short times(short i)
-    {
-        return (short) (intValue() * i);
-    }
+	public short times(short i) {
+		return (short) (intValue() * i);
+	}
 
-    public String toString()
-    {
-        return Integer.toString(base2, 2);
-    }
+	public String toString() {
+		return Integer.toString(base2, 2);
+	}
 
 }

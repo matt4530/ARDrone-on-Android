@@ -1,4 +1,3 @@
-
 package com.codeminders.ardrone.util;
 
 import java.awt.image.BufferedImage;
@@ -11,16 +10,14 @@ import com.codeminders.ardrone.DroneVideoListener;
  * 
  * @author lord
  */
-public abstract class BufferedImageVideoListener implements DroneVideoListener
-{
-    @Override
-    public void frameReceived(int startX, int startY, int w, int h, int[] rgbArray, int offset, int scansize)
-    {
-        BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-        image.setRGB(startX, startY, w, h, rgbArray, offset, scansize);
-        imageReceived(image);
-    }
+public abstract class BufferedImageVideoListener implements DroneVideoListener {
+	@Override
+	public void frameReceived(int startX, int startY, int w, int h, int[] rgbArray, int offset, int scansize) {
+		BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+		image.setRGB(startX, startY, w, h, rgbArray, offset, scansize);
+		imageReceived(image);
+	}
 
-    public abstract void imageReceived(BufferedImage image);
+	public abstract void imageReceived(BufferedImage image);
 
 }

@@ -19,64 +19,51 @@ public class ARDrone_JavaDroneActivity extends Activity {
 	private static final int reconnectAttemptsMax = 4;
 	// private static AndroidVideoPanel videoPanel;
 	private static ARDrone drone = null;
-	
-	
-	
-	
-	/*Components*/
+
+	/* Components */
 	private TextView statusBar;
 	private Button connectionStartButton;
 	private ProgressBar connectionWhirlProgress;
-	/*Components*/
-	
-	
-	
-	
-	
-	
-	
+
+	/* Components */
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		getUIComponents();
 		// videoPanel = new AndroidVideoPanel(this);
-		// setContentView(videoPanel);	
-		
-		
-		//try {
-		//	drone = new ARDrone();			
-		//}
-		//catch(Exception e)
-		//{	
-		//}
-		//initDrone();
+		// setContentView(videoPanel);
+
+		// try {
+		// drone = new ARDrone();
+		// }
+		// catch(Exception e)
+		// {
+		// }
+		// initDrone();
 	}
 
 	private void getUIComponents() {
 		statusBar = (TextView) findViewById(R.id.statusBar);
-		
-		
-		connectionStartButton = (Button) findViewById(R.id.button1);
+
+		connectionStartButton = (Button) findViewById(R.id.connectButton);
 		connectionWhirlProgress = (ProgressBar) findViewById(R.id.progressBar1);
 		connectionWhirlProgress.setVisibility(4);
 		connectionStartButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	if(drone == null)
-            	{
-            		connectionWhirlProgress.setVisibility(0); //visible = true;
-            		connectionStartButton.setEnabled(false);
-            		connectionStartButton.setText("Connecting...");
-            		connectToDrone();
-            	}
-            	else
-            	{
-            		connectionWhirlProgress.setVisibility(0); //visible = true;
-            		connectionStartButton.setEnabled(false);
-            		connectionStartButton.setText("Disconnecting...");
-            	}
-            }
-        });
+			public void onClick(View v) {
+				if (drone == null) {
+					connectionWhirlProgress.setVisibility(0); // visible = true;
+					connectionStartButton.setEnabled(false);
+					connectionStartButton.setText("Connecting...");
+					connectToDrone();
+				} else {
+					connectionWhirlProgress.setVisibility(0); // visible = true;
+					connectionStartButton.setEnabled(false);
+					connectionStartButton.setText("Disconnecting...");
+				}
+			}
+		});
 
 	}
 
@@ -88,7 +75,7 @@ public class ARDrone_JavaDroneActivity extends Activity {
 			drone.clearEmergencySignal();
 			sleep(500);
 			drone.waitForReady(CONNECT_TIMEOUT);
-			drone.playLED(1,20,5);
+			drone.playLED(1, 20, 5);
 			connectionStartButton.setText("Connected to ARDrone");
 			Log.v("DRONE", "Connected to ARDrone");
 		} catch (Exception e) {
@@ -100,12 +87,14 @@ public class ARDrone_JavaDroneActivity extends Activity {
 				drone.clearStatusChangeListeners();
 				drone.disconnect();
 				drone = null;
-			} catch (Exception e1) {e1.printStackTrace();}
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 			Log.v("DRONE", "Caught exception. Connection time out.");
 			connectionStartButton.setText("Error. Retry?");
 			connectionStartButton.setEnabled(true);
 		}
-		
+
 	}
 
 	public void initDrone() {
@@ -118,11 +107,10 @@ public class ARDrone_JavaDroneActivity extends Activity {
 				drone.connect();
 				drone.clearEmergencySignal();
 				drone.waitForReady(CONNECT_TIMEOUT);
-				
+
 			} catch (Exception e) {
 				e.printStackTrace();
-				if(reconnectAttempts < reconnectAttemptsMax)
-				{
+				if (reconnectAttempts < reconnectAttemptsMax) {
 					reconnectAttempts++;
 					initDrone();
 					return;
@@ -138,15 +126,15 @@ public class ARDrone_JavaDroneActivity extends Activity {
 		}
 		prepareLaunch();
 	}
-	public void prepareLaunch()
-	{
+
+	public void prepareLaunch() {
 		try {
 			changeStatus("Connected to Drone");
 
 			// do TRIM operation
 			drone.trim();
 			drone.playLED(3, 5, 5);
-			//drone.takeOff();
+			// drone.takeOff();
 			// Log.v("DRONE", "VIDEO PANEL IS NULL = " + (videoPanel._video ==
 			// null));
 			sleep(2000);
@@ -184,8 +172,8 @@ public class ARDrone_JavaDroneActivity extends Activity {
 			e.printStackTrace();
 		}
 	}
-	public void changeStatus(String st)
-	{
+
+	public void changeStatus(String st) {
 		statusBar.setText(st);
 	}
 }
