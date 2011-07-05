@@ -67,15 +67,15 @@ public class VideoReader implements Runnable {
 			ByteBuffer inbuf = ByteBuffer.allocate(BUFSIZE);
 			done = false;
 			while (!done) {
-				Log.v("Drone Control", "Video Reader: !done");
+				//Log.v("Drone Control", "Video Reader: !done");
 				selector.select();
-				Log.v("Drone Control", "Video Reader: !done2");
+				//Log.v("Drone Control", "Video Reader: !done2");
 				if (done) {
-					Log.v("Drone Control", "Video Reader: !done2.5");
+					//Log.v("Drone Control", "Video Reader: !done2.5");
 					disconnect();
 					break;
 				}
-				Log.v("Drone Control", "Video Reader: !done3");
+				//Log.v("Drone Control", "Video Reader: !done3");
 				Set readyKeys = selector.selectedKeys();
 				Iterator iterator = readyKeys.iterator();
 				while (iterator.hasNext()) {
@@ -99,9 +99,9 @@ public class VideoReader implements Runnable {
 							drone.videoFrameReceived(0, 0, vi.getWidth(), vi.getHeight(), vi.getJavaPixelData(), 0, vi.getWidth());
 						}
 					}
-					Log.v("Drone Control", "Video Reader: Iterator has next");
+					//Log.v("Drone Control", "Video Reader: Iterator has next");
 				}
-				Log.v("Drone Control", "Video Reader: HI!");
+				//Log.v("Drone Control", "Video Reader: HI!");
 			}
 
 		} catch (Exception e) {

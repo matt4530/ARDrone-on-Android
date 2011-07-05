@@ -18,7 +18,6 @@
 package com.profusiongames;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -130,9 +129,10 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				drone.playLED(1, 10, 4);
 				drone.addNavDataListener(FusionDrone.fDrone);
 				drone.addImageListener(FusionDrone.fDrone);
-				drone.selectVideoChannel(ARDrone.VideoChannel.VERTICAL_ONLY);
+				drone.selectVideoChannel(ARDrone.VideoChannel.VERTICAL_IN_HORIZONTAL);
 				try {
 					drone.sendVideoOnData();
+					drone.enableAutomaticVideoBitrate();
 				}
 				catch(Exception e) { e.printStackTrace();}
 				/*FusionDrone.this.runOnUiThread(new Runnable() { 
@@ -232,16 +232,20 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 
 	@Override
 	public void frameReceived(final int startX, final int startY, final int w, final int h, final int[] rgbArray, final int offset, final int scansize) {
+		final Bitmap cake = Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.RGB_565);
 		runOnUiThread(new Runnable() {
 			public void run() {
-				Log.v("Drone Control", "Frame recieved on FusionDrone   rgbArray.length = " + rgbArray.length + "       width = " + videoDisplay.getWidth() + "       data = " + Arrays.toString(rgbArray));
+				Log.v("Drone Control", "Frame recieved on FusionDrone   rgbArray.length = " + rgbArray.length + "       width = " + videoDisplay.getWidth());// + "       data = " + Arrays.toString(rgbArray));
 				/*if(videoDisplay.getDrawingCache() != null)
 					videoDisplay.getDrawingCache().setPixels(rgbArray, offset, scansize, startX, startY, w, h);
 				else {
 					Log.v("Control Tower", "frame was recieved but videoDisplay had null drawing cache");*/
-					videoDisplay.setImageBitmap(Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.ALPHA_8));
+					//videoDisplay.setImageBitmap(Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.RGB_565));
 				//}
-				videoDisplay.invalidate();
+				//videoDisplay.invalidate();
+				
+				
+				videoDisplay.setImageBitmap(cake);
 			}
 		});
 		
