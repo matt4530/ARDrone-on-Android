@@ -61,61 +61,59 @@ public class VideoReader implements Runnable {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void run() {
-		//while(true)
-		//{
-			try {
-				ByteBuffer inbuf = ByteBuffer.allocate(BUFSIZE);
-				done = false;
-				while (!done)
-				{
-					Log.v("Drone Control", "Video Reader: !done");
-					selector.select();
-					Log.v("Drone Control", "Video Reader: !done2");
-					if (done) {
-						Log.v("Drone Control", "Video Reader: !done2.5");
-						disconnect();
-						break;
-					}
-					Log.v("Drone Control", "Video Reader: !done3");
-					Set readyKeys = selector.selectedKeys();
-					Iterator iterator = readyKeys.iterator();
-					while (iterator.hasNext()) {
-						SelectionKey key = (SelectionKey) iterator.next();
-						iterator.remove();
-						if (key.isWritable()) {
-							byte[] trigger_bytes = { 0x01, 0x00, 0x00, 0x00 };
-							ByteBuffer trigger_buf = ByteBuffer.allocate(trigger_bytes.length);
-							trigger_buf.put(trigger_bytes);
-							trigger_buf.flip();
-							channel.write(trigger_buf);
-							channel.register(selector, SelectionKey.OP_READ);
-						} else if (key.isReadable()) {
-							inbuf.clear();
-							int len = channel.read(inbuf);
-							Log.v("Drone Control", "Video Reader: key.isReadable() + video frame recieved + length = " + len);
-							if (len > 0) {
-								inbuf.flip();
-								final BufferedVideoImage vi = new BufferedVideoImage();
-								vi.addImageStream(inbuf);
-								drone.videoFrameReceived(0, 0, vi.getWidth(), vi.getHeight(), vi.getJavaPixelData(), 0, vi.getWidth());
-							}
-						}
-						Log.v("Drone Control", "Video Reader: Iterator has next");
-					}
-					Log.v("Drone Control", "Video Reader: HI!");
+		// while(true)
+		// {
+		try {
+			ByteBuffer inbuf = ByteBuffer.allocate(BUFSIZE);
+			done = false;
+			while (!done) {
+				Log.v("Drone Control", "Video Reader: !done");
+				selector.select();
+				Log.v("Drone Control", "Video Reader: !done2");
+				if (done) {
+					Log.v("Drone Control", "Video Reader: !done2.5");
+					disconnect();
+					break;
 				}
-				
-			} catch (Exception e) {
-				drone.changeToErrorState(e);
+				Log.v("Drone Control", "Video Reader: !done3");
+				Set readyKeys = selector.selectedKeys();
+				Iterator iterator = readyKeys.iterator();
+				while (iterator.hasNext()) {
+					SelectionKey key = (SelectionKey) iterator.next();
+					iterator.remove();
+					if (key.isWritable()) {
+						byte[] trigger_bytes = { 0x01, 0x00, 0x00, 0x00 };
+						ByteBuffer trigger_buf = ByteBuffer.allocate(trigger_bytes.length);
+						trigger_buf.put(trigger_bytes);
+						trigger_buf.flip();
+						channel.write(trigger_buf);
+						channel.register(selector, SelectionKey.OP_READ);
+					} else if (key.isReadable()) {
+						inbuf.clear();
+						int len = channel.read(inbuf);
+						Log.v("Drone Control", "Video Reader: key.isReadable() + video frame recieved + length = " + len);
+						if (len > 0) {
+							inbuf.flip();
+							final BufferedVideoImage vi = new BufferedVideoImage();
+							vi.addImageStream(inbuf);
+							drone.videoFrameReceived(0, 0, vi.getWidth(), vi.getHeight(), vi.getJavaPixelData(), 0, vi.getWidth());
+						}
+					}
+					Log.v("Drone Control", "Video Reader: Iterator has next");
+				}
+				Log.v("Drone Control", "Video Reader: HI!");
 			}
-			/*try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}*/
-			Log.v("Drone Control", "Video Reader is running");
-		//}
-		
+
+		} catch (Exception e) {
+			drone.changeToErrorState(e);
+		}
+		/*
+		 * try { Thread.sleep(50); } catch (InterruptedException e) {
+		 * e.printStackTrace(); }
+		 */
+		Log.v("Drone Control", "Video Reader is running");
+		// }
+
 	}
 
 	public void stop() {

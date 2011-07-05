@@ -149,7 +149,7 @@ public class ARDrone {
 	private Object state_mutex = new Object();
 
 	private static final int NAVDATA_PORT = 5554;
-	private static final int VIDEO_PORT = 5556;// 5555;
+	private static final int VIDEO_PORT = 5555;
 	// private static final int CONTROL_PORT = 5559;
 
 	private static byte[] DEFAULT_DRONE_IP = { (byte) 192, (byte) 168, (byte) 1, (byte) 1 };
@@ -421,7 +421,7 @@ public class ARDrone {
 	public void navDataReceived(NavData nd) {
 		// NavData.printState(nd);
 		if (nd.isBatteryTooLow() || nd.isNotEnoughPower()) {
-			Log.v(DEBUG, "ERROR: Battery pb " + nd.toString());
+			Log.v(DEBUG, "ERROR: Battery low " + nd.toString());
 		}
 
 		synchronized (emergency_mutex) {
@@ -528,6 +528,11 @@ public class ARDrone {
 
 	public void sendDemoNavigationData() throws IOException {
 		setConfigOption("general:navdata_demo", "TRUE");
+	}
+	
+	//ADDDED by Profusion
+	public void sendVideoOnData()throws IOException {
+		setConfigOption("general:video_enable", "TRUE");
 	}
 
 	public void sendEmergencySignal() throws IOException {

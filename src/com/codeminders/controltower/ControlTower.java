@@ -91,7 +91,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 		try {
 			drone = new ARDrone();
 		} catch (UnknownHostException ex) {
-			Log.v("ControlTower","Error creating drone object!", ex);
+			Log.v("ControlTower", "Error creating drone object!", ex);
 			return;
 		}
 		droneConfigWindow.setDrone(drone);
@@ -111,7 +111,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 				// ignore
 			}
 		}
-		Log.v("ControlTower","HIDLibrary" + (isHIDLibLoaded ? " " : " not ") + "found");
+		Log.v("ControlTower", "HIDLibrary" + (isHIDLibLoaded ? " " : " not ") + "found");
 	}
 
 	/**
@@ -123,13 +123,13 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 			try {
 				current.close();
 			} catch (IOException ex) {
-				Log.v("ControlTower","", ex);
+				Log.v("ControlTower", "", ex);
 			}
 		}
 		try {
 			dev.set(findController());
 		} catch (IOException ex) {
-			Log.v("ControlTower","{0}", ex);
+			Log.v("ControlTower", "{0}", ex);
 		}
 		if (dev.get() == null) {
 			System.err.println("No suitable controller found! Using keyboard");
@@ -171,7 +171,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 				@Override
 				public void ready() {
 					try {
-						Log.v("ControlTower","updateLoop::ready()");
+						Log.v("ControlTower", "updateLoop::ready()");
 						System.err.println("Configure");
 						droneConfigWindow.updateDrone();
 						drone.selectVideoChannel(VideoChannel.HORIZONTAL_ONLY);
@@ -389,7 +389,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 
 	@Override
 	public void ready() {
-		Log.v("ControlTower","ready()");
+		Log.v("ControlTower", "ready()");
 		updateDroneStatus(true);
 	}
 

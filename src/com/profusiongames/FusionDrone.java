@@ -1,6 +1,24 @@
+//setCommand("AT*CONFIG="+(seq++)+",\"general:navdata_demo\",\"TRUE\""+CR+"AT*FTRIM="+(seq++), false);
+//setCommand("AT*CONFIG="+(seq++)+",\"general:navdata_demo\",\"TRUE\""+CR+"AT*FTRIM="+(seq++), false);
+//setCommand("AT*CONFIG="+(seq++)+",\"general:navdata_demo\",\"TRUE\""+CR+"AT*FTRIM="+(seq++), false);
+//setCommand("AT*CONFIG="+(seq++)+",\"general:navdata_demo\",\"TRUE\""+CR+"AT*FTRIM="+(seq++), false);
+//setCommand("AT*CONFIG="+(seq++)+",\"general:navdata_demo\",\"TRUE\""+CR+"AT*FTRIM="+(seq++), false);
+//setCommand("AT*CONFIG="+(seq++)+",\"general:navdata_demo\",\"TRUE\""+CR+"AT*FTRIM="+(seq++), false);
+//setCommand("AT*CONFIG="+(seq++)+",\"general:navdata_demo\",\"TRUE\""+CR+"AT*FTRIM="+(seq++), false);
+//setCommand("AT*CONFIG="+(seq++)+",\"general:navdata_demo\",\"TRUE\""+CR+"AT*FTRIM="+(seq++), false);
+//setCommand("AT*CONFIG="+(seq++)+",\"general:navdata_demo\",\"TRUE\""+CR+"AT*FTRIM="+(seq++), false);
+//setCommand("AT*CONFIG="+(seq++)+",\"general:navdata_demo\",\"TRUE\""+CR+"AT*FTRIM="+(seq++), false);
+//setCommand("AT*CONFIG="+(seq++)+",\"general:navdata_demo\",\"TRUE\""+CR+"AT*FTRIM="+(seq++), false);
+//setCommand("AT*CONFIG="+(seq++)+",\"general:navdata_demo\",\"TRUE\""+CR+"AT*FTRIM="+(seq++), false);
+//setCommand("AT*CONFIG="+(seq++)+",\"general:navdata_demo\",\"TRUE\""+CR+"AT*FTRIM="+(seq++), false);
+//setCommand("AT*CONFIG="+(seq++)+",\"general:navdata_demo\",\"TRUE\""+CR+"AT*FTRIM="+(seq++), false);
+//setCommand("AT*CONFIG="+(seq++)+",\"general:navdata_demo\",\"TRUE\""+CR+"AT*FTRIM="+(seq++), false);
+//https://github.com/shigeodayo/ARDroneForP5/blob/master/ARDroneForP5/src/ARDroneForP5/src/com/shigeodayo/ardrone/command/CommandManager.java
+
 package com.profusiongames;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -111,6 +129,12 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				drone.waitForReady(CONNECTION_TIMEOUT);
 				drone.playLED(1, 10, 4);
 				drone.addNavDataListener(FusionDrone.fDrone);
+				drone.addImageListener(FusionDrone.fDrone);
+				drone.selectVideoChannel(ARDrone.VideoChannel.VERTICAL_ONLY);
+				try {
+					drone.sendVideoOnData();
+				}
+				catch(Exception e) { e.printStackTrace();}
 				/*FusionDrone.this.runOnUiThread(new Runnable() { 
 					public void run() {
 						//FusionDrone.drone.addNavDataListener(FusionDrone.this);
@@ -196,7 +220,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 
 	@Override
 	public void navDataReceived(NavData nd) {
-		
+		//NavData.printState(nd);
 		batteryLife = nd.getBattery();
 		runOnUiThread(new Runnable() {
 			public void run() {
@@ -207,9 +231,19 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	}
 
 	@Override
-	public void frameReceived(int startX, int startY, int w, int h, int[] rgbArray, int offset, int scansize) {
-		Log.v("FusionDrone", "frameReceived()");
-		videoDisplay.setImageBitmap(Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.ALPHA_8));
+	public void frameReceived(final int startX, final int startY, final int w, final int h, final int[] rgbArray, final int offset, final int scansize) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				Log.v("Drone Control", "Frame recieved on FusionDrone   rgbArray.length = " + rgbArray.length + "       width = " + videoDisplay.getWidth() + "       data = " + Arrays.toString(rgbArray));
+				/*if(videoDisplay.getDrawingCache() != null)
+					videoDisplay.getDrawingCache().setPixels(rgbArray, offset, scansize, startX, startY, w, h);
+				else {
+					Log.v("Control Tower", "frame was recieved but videoDisplay had null drawing cache");*/
+					videoDisplay.setImageBitmap(Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.ALPHA_8));
+				//}
+				videoDisplay.invalidate();
+			}
+		});
 		
 	}
 }
