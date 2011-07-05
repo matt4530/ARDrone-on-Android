@@ -61,8 +61,6 @@ public class VideoReader implements Runnable {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void run() {
-		// while(true)
-		// {
 		try {
 			ByteBuffer inbuf = ByteBuffer.allocate(BUFSIZE);
 			done = false;

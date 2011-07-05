@@ -12,4 +12,5 @@
 	<TextView android:layout_width="match_parent" android:textAppearance="?android:attr/textAppearanceSmall" android:layout_height="wrap_content" android:text="Battery Status" android:gravity="center_horizontal" android:id="@+id/batteryStatusText"></TextView>
 	<ProgressBar android:layout_width="match_parent" style="?android:attr/progressBarStyleHorizontal" android:layout_height="wrap_content" android:id="@+id/batteryBar"></ProgressBar>
 	<ImageView android:layout_width="wrap_content" android:src="@drawable/icon" android:layout_height="wrap_content" android:id="@+id/droneVideoDisplay"></ImageView>
+	<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/animateButton" android:text="Animate"></Button>
 </LinearLayout>

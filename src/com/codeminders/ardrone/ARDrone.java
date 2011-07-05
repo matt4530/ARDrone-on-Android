@@ -22,6 +22,7 @@ import com.codeminders.ardrone.commands.PlayAnimationCommand;
 import com.codeminders.ardrone.commands.PlayLEDCommand;
 import com.codeminders.ardrone.commands.QuitCommand;
 import com.codeminders.ardrone.commands.TakeOffCommand;
+import com.profusiongames.FusionDrone;
 
 public class ARDrone {
 	public enum State {
@@ -567,6 +568,7 @@ public class ARDrone {
 	// Callback used by VideoReciver
 	public void videoFrameReceived(int startX, int startY, int w, int h, int[] rgbArray, int offset, int scansize) {
 		Log.v(DEBUG, "videoFrameRecieved()");
+		FusionDrone.queueToShow++;
 		synchronized (image_listeners) {
 			for (DroneVideoListener l : image_listeners)
 				l.frameReceived(startX, startY, w, h, rgbArray, offset, scansize);
