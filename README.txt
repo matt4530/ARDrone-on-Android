@@ -31,6 +31,7 @@
 *
 * ^ Attribution will be given to:
 *  	UnknownGuardian http://www.kongregate.com/accounts/UnknownGuardian
+*	Codeminders http://www.codeminders.com/
 *
 * ^ Redistributions of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer in all copies or
