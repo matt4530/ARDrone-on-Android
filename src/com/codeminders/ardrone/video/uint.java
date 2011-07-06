@@ -133,5 +133,10 @@ public class uint {
 	public String toString() {
 		return Integer.toString(base2, 2);
 	}
+	
+	public boolean equalsU(uint other)
+	{
+		return this.base2 == other.base2;
+	}
 
 }

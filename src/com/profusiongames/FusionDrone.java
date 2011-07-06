@@ -46,11 +46,15 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private static ARDrone drone;
 	private static SensorManager sensorManager;
 
-
+	private static boolean hasWaitedSomeTime = false; //for methods we dont want to do till the app has some time to boot
 	private static boolean isConnected = false;
 	private static boolean isFlying = false;
 	private int batteryLife = 0;
 	public static int queueToShow = 0;
+	
+	private double startX = -1f;
+	private double startY = -1f;
+	private double startZ = -1f;
 
 	/* Components */
 	@SuppressWarnings("unused")
@@ -58,7 +62,6 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private Button connectionStartButton;
 	private ProgressBar connectionWhirlProgress;
 	private Button launchButton;
-	private ProgressBar batteryDisplay;
 	private TextView batteryText;
 	private ImageView videoDisplay;
 	private Button animateButton;
@@ -106,7 +109,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				} else {
 					if(isFlying) { try { drone.land(); Thread.sleep(400);} catch (Exception e) {e.printStackTrace();}} //if going to disconnect, but still flying, attempt to tell drone to land
 					connectionStartButton.setEnabled(false);
-					connectionStartButton.setText("Disconnected");
+					connectionStartButton.setText("Disconnecting...");
 					(new DroneEnder()).execute(FusionDrone.drone);
 				}
 			}
@@ -127,17 +130,17 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				}
 			}
 		});
-		batteryDisplay = (ProgressBar) findViewById(R.id.batteryBar);
 		batteryText = (TextView) findViewById(R.id.batteryStatusText);
 		videoDisplay = (ImageView) findViewById(R.id.droneVideoDisplay);
 		animateButton = (Button) findViewById(R.id.animateButton);
 		animateButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				try {
-					drone.move(0.0f, 0.0f, 0.0f, 0.1f);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				//try {
+					//drone.move(0.0f, 0.0f, 0.0f, 0.1f);
+				//} catch (IOException e) {
+					//e.printStackTrace();
+				//}
+				hasWaitedSomeTime = true;
 			}
 		});
 	}
@@ -155,7 +158,6 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		batteryLife = nd.getBattery();
 		runOnUiThread(new Runnable() {
 			public void run() {
-				batteryDisplay.setProgress(batteryLife);
 				batteryText.setText("Battery Life: " + batteryLife + "%");
 			}
 		});
@@ -165,7 +167,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	public void frameReceived(final int startX, final int startY, final int w, final int h, final int[] rgbArray, final int offset, final int scansize) 
 	{
 		(new VideoDisplayer(startX, startY, w, h, rgbArray, offset, scansize)).execute();
-		Log.v("Drone Control", "Frame recieved on FusionDrone   rgbArray.length = " + rgbArray.length + "       width = " + videoDisplay.getWidth());
+		Log.v("Drone Control", "Frame recieved on FusionDrone   rgbArray.length = " + rgbArray.length + "       width = " + w + " height = " + h);
 		
 		//final Bitmap cake = Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.RGB_565);
 		//runOnUiThread(new Runnable() {
@@ -192,21 +194,40 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
-		Log.v("DRONE", "Accuracy changed: " + accuracy);
+		//Log.v("DRONE", "Accuracy changed: " + accuracy);
 		
 	}
 
+	private float sensorThreshold = 3;
 	@Override
 	public void onSensorChanged(SensorEvent e) {
-		Log.v("DRONE", "sensor: " + e.sensor + ", x: " + e.values[0] + ", y: " + e.values[1] + ", z: " + e.values[2]);
+		if(!hasWaitedSomeTime) return;
+		Log.v("DRONE", "sensor: " + e.sensor + ", x: " + MathUtil.trunk(e.values[0]) + ", y: " + MathUtil.trunk(e.values[1]) + ", z: " + MathUtil.trunk(e.values[2]));
+		if(startX == -1f) 
+		{
+			startX = e.values[0];
+			startY = e.values[1];
+			startZ = e.values[2];
+		}
+		float shortX = MathUtil.trunk(MathUtil.getShortestAngle(e.values[0],(float) startX));
+		float shortY = MathUtil.trunk(MathUtil.getShortestAngle(e.values[1],(float) startY));
+		float shortZ = MathUtil.trunk(MathUtil.getShortestAngle(e.values[2],(float) startZ));
+		if( MathUtil.abs(shortX) <  sensorThreshold) shortX = 0;// do nothing
+		if( MathUtil.abs(shortY) <  sensorThreshold) shortY = 0;// do nothing
+		if( MathUtil.abs(shortZ) <  sensorThreshold) shortZ = 0;// do nothing
+		Log.v("DRONE", "sensor difference: x: " + shortX + ", y: " + shortY + ", z: " + shortZ);
+
+		
+		
+		
 		/*if(isFlying)
 			try {
-				drone.move(0.0f, 0.0f,0.0f, 0.1f*e.values[0]);
+				drone.move(0.0f, 0.0f,0.0f, 0.01f*e.values[0]);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			}*/
-		
+			}
+		*/
 	} 
 	
 
@@ -265,10 +286,10 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 
 		protected void onPostExecute(Boolean success) {
 			if (success.booleanValue()) {
-				connectionStartButton.setText("Connected to ARDrone. Tap to disconnect.");
+				connectionStartButton.setText("Disconnect...");
 				launchButton.setVisibility(Button.VISIBLE);
 			} else {
-				connectionStartButton.setText("Error Connecting. Retry?");
+				connectionStartButton.setText("Error 1. Retry?");
 			}
 			isConnected = success.booleanValue();
 			connectionStartButton.setEnabled(true);
@@ -316,13 +337,12 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 
 		protected void onPostExecute(Boolean success) {
 			if (success.booleanValue()) {
-				connectionStartButton.setText("Disconencted to ARDrone. Tap to connect.");
+				connectionStartButton.setText("Connect...");
 				connectionStartButton.setEnabled(true);
 				launchButton.setVisibility(Button.INVISIBLE);
-				batteryDisplay.setProgress(0);
 				batteryText.setText("Battery Status");
 			} else {
-				connectionStartButton.setText("Error disconnecting. Retry?");
+				connectionStartButton.setText("Error 2. Retry?");
 			}
 			isConnected = !success.booleanValue();
 

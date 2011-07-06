@@ -4,13 +4,14 @@
 	<TextView android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:text="@string/hello"
 		android:id="@+id/statusBar" android:gravity="center_horizontal" />
-	<LinearLayout android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/linearLayout1">
-		<Button android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Connect to ARDrone" android:id="@+id/connectButton"></Button>
-		<ProgressBar style="?android:attr/progressBarStyleSmall" android:visibility="invisible" android:id="@+id/progressBar1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_vertical"></ProgressBar>
+	<LinearLayout android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/linearLayout1" android:orientation="horizontal">
+		<Button android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Connect..." android:id="@+id/connectButton"></Button>
+		<ProgressBar style="?android:attr/progressBarStyleSmall" android:visibility="invisible" android:id="@+id/progressBar1" android:layout_height="wrap_content" android:layout_gravity="center_vertical" android:layout_width="wrap_content"></ProgressBar>
+		<Button android:text="Launch!" android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/Button01" android:gravity="center_vertical|center_horizontal"></Button>
 	</LinearLayout>
-	<Button android:layout_height="wrap_content" android:text="Launch Drone" android:layout_width="match_parent" android:id="@+id/Button01"></Button>
-	<TextView android:layout_width="match_parent" android:textAppearance="?android:attr/textAppearanceSmall" android:layout_height="wrap_content" android:text="Battery Status" android:gravity="center_horizontal" android:id="@+id/batteryStatusText"></TextView>
-	<ProgressBar android:layout_width="match_parent" style="?android:attr/progressBarStyleHorizontal" android:layout_height="wrap_content" android:id="@+id/batteryBar"></ProgressBar>
-	<ImageView android:layout_width="wrap_content" android:src="@drawable/icon" android:layout_height="wrap_content" android:id="@+id/droneVideoDisplay"></ImageView>
+	<LinearLayout android:id="@+id/linearLayout2" android:layout_width="match_parent" android:layout_height="wrap_content">
+		<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_horizontal" android:textAppearance="?android:attr/textAppearanceSmall" android:id="@+id/batteryStatusText" android:text="Battery Status"></TextView>
+	</LinearLayout>
 	<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/animateButton" android:text="Animate"></Button>
+	<ImageView android:src="@drawable/icon" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/droneVideoDisplay"></ImageView>
 </LinearLayout>

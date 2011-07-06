@@ -189,6 +189,12 @@ public class BufferedVideoImage {
 							javaPixelData[index1] = pixelData[index1].intValue();
 
 							r = saturate5(lumaElementValue2 + vr);
+							//int otherr = (lumaElementValue2 + vr < 0) ? 0  : (lumaElementValue2 + vr) >>=11
+									
+							//		x >>= 11;
+							//return (x > 0x1F) ? 0x1F : x;		
+									
+							//Log.v("derp", "" + (r == otherr));
 							g = saturate6(lumaElementValue2 - ug - vg);
 							b = saturate5(lumaElementValue2 + ub);
 
@@ -571,15 +577,19 @@ public class BufferedVideoImage {
 		g <<= 1;
 		b <<= 2;
 
-		uint ru = new uint(r);
+		/*uint ru = new uint(r);
 		uint gu = new uint(g);
 		uint bu = new uint(b);
 
 		uint retval = ru.shiftLeft(16);
 		retval = retval.or(gu.shiftLeft(8));
 		retval = retval.or(bu);
-
+		Log.v("Drone", "SAME? " + retval.equalsU(new uint((r << 16) | (g << 8) | b)));
 		return retval;
+		*/
+		
+		//UG ADDED. 82% faster.
+		return new uint((r << 16) | (g << 8) | b);
 	}
 
 	// Blockline:

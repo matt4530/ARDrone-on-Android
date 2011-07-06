@@ -89,12 +89,14 @@ public class VideoReader implements Runnable {
 					} else if (key.isReadable()) {
 						inbuf.clear();
 						int len = channel.read(inbuf);
-						Log.v("Drone Control", "Video Reader: key.isReadable() + video frame recieved + length = " + len);
+						
 						if (len > 0) {
 							inbuf.flip();
+							Log.v("Drone Control", "Test");
 							final BufferedVideoImage vi = new BufferedVideoImage();
 							vi.addImageStream(inbuf);
 							drone.videoFrameReceived(0, 0, vi.getWidth(), vi.getHeight(), vi.getJavaPixelData(), 0, vi.getWidth());
+							Log.v("Drone Control", "VideoReader.java: BufferedVideoImage stream.length = " + len + "      java pixel data = " + vi.getJavaPixelData().length);
 						}
 					}
 					//Log.v("Drone Control", "Video Reader: Iterator has next");

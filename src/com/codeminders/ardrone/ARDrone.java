@@ -574,7 +574,7 @@ public class ARDrone {
 
 	// Callback used by VideoReciver
 	public void videoFrameReceived(int startX, int startY, int w, int h, int[] rgbArray, int offset, int scansize) {
-		Log.v(DEBUG, "videoFrameRecieved()");
+		Log.v(DEBUG, "ARDrone.java: videoFrameRecieved()");
 		FusionDrone.queueToShow++;
 		synchronized (image_listeners) {
 			for (DroneVideoListener l : image_listeners)
