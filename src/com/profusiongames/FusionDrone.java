@@ -22,6 +22,10 @@ import java.io.IOException;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -36,10 +40,13 @@ import com.codeminders.ardrone.DroneVideoListener;
 import com.codeminders.ardrone.NavData;
 import com.codeminders.ardrone.NavDataListener;
 
-public class FusionDrone extends Activity implements NavDataListener, DroneVideoListener {
+public class FusionDrone extends Activity implements NavDataListener, DroneVideoListener, SensorEventListener {
 
 	private static FusionDrone fDrone;
 	private static ARDrone drone;
+	private static SensorManager sensorManager;
+
+
 	private static boolean isConnected = false;
 	private static boolean isFlying = false;
 	private int batteryLife = 0;
@@ -62,9 +69,25 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		fDrone = this;
+		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		getUIComponents();
 	}
-
+	@Override
+	protected void onResume() {
+        super.onResume();
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), 3);
+    }
+	@Override
+    protected void onPause() {
+        super.onPause();
+        sensorManager.unregisterListener(this);
+    }
+	@Override
+    protected void onStop() {
+		sensorManager.unregisterListener(this);
+        super.onStop();
+    }
+	
 	private void getUIComponents() {
 		statusBar = (TextView) findViewById(R.id.statusBar);
 
@@ -111,9 +134,8 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		animateButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				try {
-					drone.playAnimation(ARDrone.Animation.PHI_DANCE, 10);
+					drone.move(0.0f, 0.0f, 0.0f, 0.1f);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -127,7 +149,75 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		return fDrone;
 	}
 	
+	@Override
+	public void navDataReceived(NavData nd) {
+		//NavData.printState(nd);
+		batteryLife = nd.getBattery();
+		runOnUiThread(new Runnable() {
+			public void run() {
+				batteryDisplay.setProgress(batteryLife);
+				batteryText.setText("Battery Life: " + batteryLife + "%");
+			}
+		});
+	}
 
+	@Override
+	public void frameReceived(final int startX, final int startY, final int w, final int h, final int[] rgbArray, final int offset, final int scansize) 
+	{
+		(new VideoDisplayer(startX, startY, w, h, rgbArray, offset, scansize)).execute();
+		Log.v("Drone Control", "Frame recieved on FusionDrone   rgbArray.length = " + rgbArray.length + "       width = " + videoDisplay.getWidth());
+		
+		//final Bitmap cake = Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.RGB_565);
+		//runOnUiThread(new Runnable() {
+		//	public void run() {
+		//		Log.v("Drone Control", "Frame recieved on FusionDrone   rgbArray.length = " + rgbArray.length + "       width = " + videoDisplay.getWidth());// + "       data = " + Arrays.toString(rgbArray));
+				/*if(videoDisplay.getDrawingCache() != null)
+					videoDisplay.getDrawingCache().setPixels(rgbArray, offset, scansize, startX, startY, w, h);
+				else {
+					Log.v("Control Tower", "frame was recieved but videoDisplay had null drawing cache");*/
+					//videoDisplay.setImageBitmap(Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.RGB_565));
+				//}
+				//videoDisplay.invalidate();
+				
+		//		(new VideoDisplayer(startX, startY, w, h, rgbArray, offset, scansize)).execute();
+				//videoDisplay.setImageBitmap(cake);
+				//FusionDrone.queueToShow--;
+				//Log.v("Drone Control", "Queue = " + queueToShow);
+			//}
+		//});
+		
+		
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// TODO Auto-generated method stub
+		Log.v("DRONE", "Accuracy changed: " + accuracy);
+		
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent e) {
+		Log.v("DRONE", "sensor: " + e.sensor + ", x: " + e.values[0] + ", y: " + e.values[1] + ", z: " + e.values[2]);
+		/*if(isFlying)
+			try {
+				drone.move(0.0f, 0.0f,0.0f, 0.1f*e.values[0]);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}*/
+		
+	} 
+	
+
+
+    
+    
+    
+    
+    
+    
+    
 	private class DroneStarter extends AsyncTask<ARDrone, Integer, Boolean> {
 		private static final int CONNECTION_TIMEOUT = 4000;
 
@@ -185,6 +275,15 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 			connectionWhirlProgress.setVisibility(4);// invisible
 		}
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	private class DroneEnder extends AsyncTask<ARDrone, Integer, Boolean> {
 		@Override
@@ -232,45 +331,14 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		}
 	}
 
-	@Override
-	public void navDataReceived(NavData nd) {
-		//NavData.printState(nd);
-		batteryLife = nd.getBattery();
-		runOnUiThread(new Runnable() {
-			public void run() {
-				batteryDisplay.setProgress(batteryLife);
-				batteryText.setText("Battery Life: " + batteryLife + "%");
-			}
-		});
-	}
-
-	@Override
-	public void frameReceived(final int startX, final int startY, final int w, final int h, final int[] rgbArray, final int offset, final int scansize) 
-	{
-		(new VideoDisplayer(startX, startY, w, h, rgbArray, offset, scansize)).execute();
-		Log.v("Drone Control", "Frame recieved on FusionDrone   rgbArray.length = " + rgbArray.length + "       width = " + videoDisplay.getWidth());
-		
-		//final Bitmap cake = Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.RGB_565);
-		//runOnUiThread(new Runnable() {
-		//	public void run() {
-		//		Log.v("Drone Control", "Frame recieved on FusionDrone   rgbArray.length = " + rgbArray.length + "       width = " + videoDisplay.getWidth());// + "       data = " + Arrays.toString(rgbArray));
-				/*if(videoDisplay.getDrawingCache() != null)
-					videoDisplay.getDrawingCache().setPixels(rgbArray, offset, scansize, startX, startY, w, h);
-				else {
-					Log.v("Control Tower", "frame was recieved but videoDisplay had null drawing cache");*/
-					//videoDisplay.setImageBitmap(Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.RGB_565));
-				//}
-				//videoDisplay.invalidate();
-				
-		//		(new VideoDisplayer(startX, startY, w, h, rgbArray, offset, scansize)).execute();
-				//videoDisplay.setImageBitmap(cake);
-				//FusionDrone.queueToShow--;
-				//Log.v("Drone Control", "Queue = " + queueToShow);
-			//}
-		//});
-		
-		
-	}
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	private class VideoDisplayer extends AsyncTask<Void, Integer, Void> {
 		
@@ -303,9 +371,5 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 			FusionDrone.queueToShow--;
 			Log.v("Drone Control", "Queue = " + FusionDrone.queueToShow);
 		}
-
-
-		
-
 	}
 }

@@ -49,8 +49,8 @@ public class VideoReader implements Runnable {
 		try {
 			if (channel.isConnected()) {
 				channel.socket().disconnect();
-				channel.socket().close();
 			}
+			channel.socket().close();
 			channel.disconnect();
 			channel.close();
 		} catch (IOException iox) {
