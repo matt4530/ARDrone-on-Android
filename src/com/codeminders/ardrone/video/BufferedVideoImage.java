@@ -2,6 +2,8 @@ package com.codeminders.ardrone.video;
 
 import java.nio.ByteBuffer;
 
+import android.util.Log;
+
 // Copyright (C) 2007-2011, PARROT SA, all rights reserved.
 
 // DISCLAIMER
@@ -244,7 +246,7 @@ public class BufferedVideoImage {
 		// First we extract the run field info and then the level field info.
 
 		streamCode = peekStreamData(imageStream, 32);
-
+		if(streamCode.intValue() > Integer.MAX_VALUE) Log.v("Drone", "Int is too small to use here");
 		// Determine number of consecutive zeros in zig zag. (a.k.a
 		// 'run' field info)
 
@@ -573,9 +575,9 @@ public class BufferedVideoImage {
 	}
 
 	private uint makeRGB(int r, int g, int b) {
-		r <<= 2;
-		g <<= 1;
-		b <<= 2;
+		//r <<= 2;
+		//g <<= 1;
+		//b <<= 2;
 
 		/*uint ru = new uint(r);
 		uint gu = new uint(g);
@@ -589,7 +591,8 @@ public class BufferedVideoImage {
 		*/
 		
 		//UG ADDED. 82% faster.
-		return new uint((r << 16) | (g << 8) | b);
+		//return new uint((r << 16) | (g << 8) | b);
+		return new uint((r << 18) | (g << 9) | b<<2); //combines bitshifts at the top of the function. I see no speed boost though
 	}
 
 	// Blockline:
