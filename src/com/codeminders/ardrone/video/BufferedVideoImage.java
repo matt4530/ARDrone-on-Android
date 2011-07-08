@@ -148,10 +148,12 @@ public class BufferedVideoImage {
 		int chromaRedValue = 0;
 
 		int[] pixelDataQuadrantOffsets = new int[] { 0, BLOCK_WIDTH, width * BLOCK_WIDTH, (width * BLOCK_WIDTH) + BLOCK_WIDTH };
-
+		short[] mbDBArr;
+		short[][] dbArr;
 		int imageDataOffset = (sliceIndex - 1) * width * 16;
 		
 		for (MacroBlock macroBlock : imageSlice.MacroBlocks) {
+			dbArr = macroBlock.DataBlocks;
 			for (int verticalStep = 0; verticalStep < BLOCK_WIDTH / 2; verticalStep++) {
 				chromaOffset = verticalStep * BLOCK_WIDTH;
 				lumaElementIndex1 = verticalStep * BLOCK_WIDTH * 2;
@@ -163,9 +165,9 @@ public class BufferedVideoImage {
 				for (int horizontalStep = 0; horizontalStep < BLOCK_WIDTH / 2; horizontalStep++) {
 					for (int quadrant = 0; quadrant < 4; quadrant++) {
 						int chromaIndex = chromaOffset + CROMA_QUADRANT_OFFSETS[quadrant] + horizontalStep;
-						chromaBlueValue = macroBlock.DataBlocks[4][chromaIndex];
-						chromaRedValue = macroBlock.DataBlocks[5][chromaIndex];
-						short[] mbDBArr = macroBlock.DataBlocks[quadrant];
+						chromaBlueValue = dbArr[4][chromaIndex];
+						chromaRedValue = dbArr[5][chromaIndex];
+						mbDBArr = dbArr[quadrant];
 
 						u = chromaBlueValue - 128;
 						ug = 88 * u;
@@ -181,51 +183,67 @@ public class BufferedVideoImage {
 							lumaElementValue2 = /*macroBlock.DataBlocks[quadrant]*/mbDBArr[lumaElementIndex2 + deltaIndex] << 8;
 							int x = lumaElementValue1 + vr;
 							if (x < 0)
+							{
 								r = 0;
+							}
 							else
 							{
 								x >>= 11;
 								r = (x > 0x1F) ? 0x1F : x;
 							}
-							int x4 = lumaElementValue1 - ug - vg;
-							if (x4 < 0)
+							x = lumaElementValue1 - ug - vg;
+							if (x < 0)
+							{
 								g = 0;
-							else
-							{
-								x4 >>= 10;
-								g = x4 > 0x3F ? 0x3F : x4;
 							}
-							int x1 = lumaElementValue1 + ub;
-							if (x1 < 0)
-								b = 0;
 							else
 							{
-								x1 >>= 11;
-								b = (x1 > 0x1F) ? 0x1F : x1;
+								x >>= 10;
+								g = x > 0x3F ? 0x3F : x;
+							}
+							x = lumaElementValue1 + ub;
+							if (x < 0)
+							{
+								b = 0;
+							}
+							else
+							{
+								x >>= 11;
+								b = (x > 0x1F) ? 0x1F : x;
 							}
 							//int index1 = dataIndex1 + pixelDataQuadrantOffsets[quadrant] + deltaIndex;
 							//pixelData[index1] = makeRGB(r, g, b);
 							javaPixelData[dataIndex1 + pixelDataQuadrantOffsets[quadrant] + deltaIndex/*index1*/] = ((r << 18) | (g << 9) | b<<2);//pixelData[index1].intValue();
-							int x2 = lumaElementValue2 + vr;
-							if (x2 < 0)
-								x2 = 0;
-							
-							x2 >>= 11;
-
-							r = (x2 > 0x1F) ? 0x1F : x2;
-							int x5 = lumaElementValue2 - ug - vg;
-							if (x5 < 0)
-								x5 = 0;
-							
-							x5 >>= 10;
-							g = x5 > 0x3F ? 0x3F : x5;
-							int x3 = lumaElementValue2 + ub;
-							if (x3 < 0)
-								x3 = 0;
-							
-							x3 >>= 11;
-							b = (x3 > 0x1F) ? 0x1F : x3;
-
+							x = lumaElementValue2 + vr;
+							if (x < 0)
+							{
+								r = 0;
+							}
+							else
+							{
+								x >>= 11;
+								r = (x > 0x1F) ? 0x1F : x;
+							}
+							x = lumaElementValue2 - ug - vg;
+							if (x < 0)
+							{
+								g = 0;
+							}
+							else
+							{
+								x >>= 10;
+								g = x > 0x3F ? 0x3F : x;
+							}
+							x = lumaElementValue2 + ub;
+							if (x < 0)
+							{
+								b = 0;
+							}
+							else
+							{
+								x >>= 11;
+								b = (x > 0x1F) ? 0x1F : x;
+							}
 							//int index2 = dataIndex2 + pixelDataQuadrantOffsets[quadrant] + deltaIndex;
 							//pixelData[index2] = makeRGB(r, g, b);
 							javaPixelData[dataIndex2 + pixelDataQuadrantOffsets[quadrant] + deltaIndex/*index2*/] = ((r << 18) | (g << 9) | b<<2);//pixelData[index2].intValue();
@@ -782,33 +800,45 @@ public class BufferedVideoImage {
 	// So to calculate the real index we have to take that also into account
 	// (blockCount)
 
+	
+	//contains common code for optimization purposes
 	private int peekStreamData(ByteBuffer stream, int count) {
 		int data = 0;//uint data = new uint(0);
 		int stream_field = streamField;//streamField.intValue();//uint stream_field = streamField;
 		int stream_field_bit_index = streamFieldBitIndex;
 		byte[] streamArr = stream.array();
-		ByteBuffer bb = ByteBuffer.allocate(4);
+		//ByteBuffer bb = ByteBuffer.allocate(4);
 		while (count > (32 - stream_field_bit_index) && streamIndex < (imageStream.capacity() >> 2)) {
 			//data = (data.shiftLeft(32 - stream_field_bit_index)).or(stream_field.shiftRight(stream_field_bit_index));
 			data = (data << (32 - stream_field_bit_index)) | ( stream_field >>> stream_field_bit_index);
 			count -= 32 - stream_field_bit_index;
 			
-			
-			
-			
 			////stream_field = new uint(stream, streamIndex * 4);
 			////stream_field = uint.readStream(stream, streamIndex * 4);
 			//ByteBuffer bb = ByteBuffer.allocate(4);
-			bb.put(0,streamArr[streamIndex * 4 + 3]);
+
+			/*bb.put(0,streamArr[streamIndex * 4 + 3]);
 			bb.put(1,streamArr[streamIndex * 4 + 2]);
 			bb.put(2,streamArr[streamIndex * 4 + 1]);
-			bb.put(3,streamArr[streamIndex * 4 + 0]);
+			bb.put(3,streamArr[streamIndex * 4 + 0]);*/
+			
+			/*int temp = (streamArr[streamIndex * 4 + 0] << 24) | (streamArr[streamIndex * 4 + 1] << 16) | (streamArr[streamIndex * 4 + 2] << 8) | streamArr[streamIndex * 4 + 3];
+			int temp2 = streamArr[streamIndex * 4 + 0] | (streamArr[streamIndex * 4 + 1] << 8) | (streamArr[streamIndex * 4 + 2] << 16) | (streamArr[streamIndex * 4 + 3] << 24);
+			int temp3 = ((streamArr[streamIndex * 4 + 0] & 0x000000FF) << 8);
+			temp3 = (temp3 + (streamArr[streamIndex * 4 + 1] & 0x000000FF)) << 8;
+			temp3 = (temp3 + (streamArr[streamIndex * 4 + 2] & 0x000000FF)) << 8;
+			temp3 = (temp3 + (streamArr[streamIndex * 4 + 3] & 0x000000FF));*/
+			stream_field = ((streamArr[streamIndex * 4 + 3] & 0x000000FF) << 8);
+			stream_field = (stream_field + (streamArr[streamIndex * 4 + 2] & 0x000000FF)) << 8;
+			stream_field = (stream_field + (streamArr[streamIndex * 4 + 1] & 0x000000FF)) << 8;
+			stream_field = (stream_field + (streamArr[streamIndex * 4 + 0] & 0x000000FF));
+			
 			//bb.put(streamArr[streamIndex * 4 + 3]);
 			//bb.put(streamArr[streamIndex * 4 + 2]);
 			//bb.put(streamArr[streamIndex * 4 + 1]);
 			//bb.put(streamArr[streamIndex * 4 + 0]);
 			//bb.flip();
-			stream_field = bb.getInt();
+			//stream_field = bb.getInt();
 			
 			
 			
@@ -905,11 +935,11 @@ public class BufferedVideoImage {
 				pictureComplete = true;
 			} else {
 				if (sliceIndex++ == 0) {
-					pictureFormat = (int) readStreamData(2).intValue();
-					resolution = (int) readStreamData(3).intValue();
-					pictureType = (int) readStreamData(3).intValue();
-					quantizerMode = (int) readStreamData(5).intValue();
-					frameIndex = (int) readStreamData(32).intValue();
+					pictureFormat =  readStreamData(2).intValue();
+					resolution =  readStreamData(3).intValue();
+					pictureType =  readStreamData(3).intValue();
+					quantizerMode =  readStreamData(5).intValue();
+					frameIndex =  readStreamData(32).intValue();
 
 					switch (pictureFormat) {
 					case CIF:
@@ -946,6 +976,7 @@ public class BufferedVideoImage {
 		}
 	}
 
+	//contains common code for optimization purposes
 	//private int readStreamData(int count) {		
 	private uint readStreamData(int count) {		
 		
@@ -958,15 +989,18 @@ public class BufferedVideoImage {
 			
 			
 			//streamField = new uint(imageStream, streamIndex * 4);
-			ByteBuffer bb = ByteBuffer.allocate(4);
+			/*ByteBuffer bb = ByteBuffer.allocate(4);
 			bb.put(imageStreamArr[streamIndex * 4 + 3]);
 			bb.put(imageStreamArr[streamIndex * 4 + 2]);
 			bb.put(imageStreamArr[streamIndex * 4 + 1]);
 			bb.put(imageStreamArr[streamIndex * 4 + 0]);
 			bb.flip();
-			streamField = bb.getInt();
+			streamField = bb.getInt();*/
 			
-			
+			streamField = ((imageStreamArr[streamIndex * 4 + 3] & 0x000000FF) << 8);
+			streamField = (streamField + (imageStreamArr[streamIndex * 4 + 2] & 0x000000FF)) << 8;
+			streamField = (streamField + (imageStreamArr[streamIndex * 4 + 1] & 0x000000FF)) << 8;
+			streamField = (streamField + (imageStreamArr[streamIndex * 4 + 0] & 0x000000FF));
 			
 			
 			
