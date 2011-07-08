@@ -310,7 +310,7 @@ public class ARDrone {
 			nav_data_reader_thread.start();
 
 			video_reader = new VideoReader(this, drone_addr, VIDEO_PORT);
-			video_reader_thread = new Thread(video_reader);
+			video_reader_thread = new Thread(video_reader,"Video Reader");
 			video_reader_thread.start();
 
 			changeState(State.CONNECTING);

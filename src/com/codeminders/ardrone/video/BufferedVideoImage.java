@@ -150,7 +150,7 @@ public class BufferedVideoImage {
 		int[] pixelDataQuadrantOffsets = new int[] { 0, BLOCK_WIDTH, width * BLOCK_WIDTH, (width * BLOCK_WIDTH) + BLOCK_WIDTH };
 
 		int imageDataOffset = (sliceIndex - 1) * width * 16;
-
+		
 		for (MacroBlock macroBlock : imageSlice.MacroBlocks) {
 			for (int verticalStep = 0; verticalStep < BLOCK_WIDTH / 2; verticalStep++) {
 				chromaOffset = verticalStep * BLOCK_WIDTH;
@@ -200,7 +200,7 @@ public class BufferedVideoImage {
 
 							int index1 = dataIndex1 + pixelDataQuadrantOffsets[quadrant] + deltaIndex;
 							//pixelData[index1] = makeRGB(r, g, b);
-							javaPixelData[index1] = makeRGB(r, g, b);//pixelData[index1].intValue();
+							javaPixelData[index1] = ((r << 18) | (g << 9) | b<<2);//pixelData[index1].intValue();
 							int x2 = lumaElementValue2 + vr;
 							if (x2 < 0)
 								x2 = 0;
@@ -223,7 +223,7 @@ public class BufferedVideoImage {
 
 							int index2 = dataIndex2 + pixelDataQuadrantOffsets[quadrant] + deltaIndex;
 							//pixelData[index2] = makeRGB(r, g, b);
-							javaPixelData[index2] = makeRGB(r, g, b);//pixelData[index2].intValue();
+							javaPixelData[index2] = ((r << 18) | (g << 9) | b<<2);//pixelData[index2].intValue();
 						}
 					}
 				}
@@ -447,7 +447,7 @@ public class BufferedVideoImage {
 	public int getSliceCount() {
 		return sliceCount;
 	}
-
+	
 	public int getWidth() {
 		return width;
 	}
@@ -595,11 +595,12 @@ public class BufferedVideoImage {
 
 			pointer += 8;
 		}
-
+		short[] temp = imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex];
 		for (int i = 0; i < data.length; i++)
-			imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex][i] = data[i];
+			temp[i] = data[i]; //imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex][i] = data[i];
 	}
 
+	@SuppressWarnings("unused")
 	private int makeRGB(int r, int g, int b) {
 		//r <<= 2;
 		//g <<= 1;
