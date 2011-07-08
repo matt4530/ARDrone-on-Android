@@ -240,7 +240,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
     
     
 	private class DroneStarter extends AsyncTask<ARDrone, Integer, Boolean> {
-		private static final int CONNECTION_TIMEOUT = 4000;
+		private static final int CONNECTION_TIMEOUT = 3000;
 
 		@Override
 		protected Boolean doInBackground(ARDrone... drones) {

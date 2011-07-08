@@ -82,13 +82,15 @@ public class uint {
 	}
 
 	public uint and(int andval) {
-		int retval = base2 & andval;
-		return new uint(retval);
+		/*int retval = base2 & andval;
+		return new uint(retval);*/
+		return new uint(base2 & andval);
 	}
 
 	public int flipBits() {
-		int base = ~base2;
-		return base;
+		/*int base = ~base2;
+		return base;*/
+		return ~base2;
 	}
 
 	public int intValue() {
@@ -97,33 +99,37 @@ public class uint {
 	}
 
 	public uint or(uint orval) {
-		int retval = base2 | orval.base2;
-		return new uint(retval);
+		/*int retval = base2 | orval.base2;
+		return new uint(retval);*/
+		return new uint(base2 | orval.base2);
 	}
 
 	public uint shiftLeft(int i) {
-		int base = base2;
+		/*int base = base2;
 		base <<= i;
-
-		return new uint(base);
+		return new uint(base);*/
+		return new uint( base2 << i);
 	}
 
 	public void shiftLeftEquals(int i) {
-		int base = base2;
+		/*int base = base2;
 		base <<= i;
-		base2 = base;
+		base2 = base;*/
+		base2 <<=i;
 	}
 
 	public uint shiftRight(int i) {
-		int base = base2;
+		/*int base = base2;
 		base = base >>> i;
-		return new uint(base);
+		return new uint(base);*/
+		return new uint(base2 >>> i);
 	}
 
 	public void shiftRightEquals(int i) {
-		int base = base2;
+		/*int base = base2;
 		base >>>= i;
-		base2 = base;
+		base2 = base;*/
+		base2 >>>= i;
 	}
 
 	public short times(short i) {
@@ -137,6 +143,26 @@ public class uint {
 	public boolean equalsU(uint other)
 	{
 		return this.base2 == other.base2;
+	}
+	
+	public static int readStream(ByteBuffer bp, int start) {
+		try {
+			////ByteBuffer bb = bp.get(bp.array(), start, 4);
+			
+			ByteBuffer bb = ByteBuffer.allocate(4);
+			bb.put(bp.array()[start + 3]);
+			bb.put(bp.array()[start + 2]);
+			bb.put(bp.array()[start + 1]);
+			bb.put(bp.array()[start + 0]);
+			// bb.put(bp.get(start + 3));
+			// bb.put(bp.get(start + 2));
+			// bb.put(bp.get(start + 1));
+			// bb.put(bp.get(start ));
+			bb.flip();
+			return bb.getInt();
+		} catch (Exception e) {
+			throw new RuntimeException("error creating uint", e);
+		}
 	}
 
 }
