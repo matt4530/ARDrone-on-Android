@@ -254,7 +254,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				drone.playLED(1, 10, 4);
 				drone.addNavDataListener(FusionDrone.fDrone);
 				drone.addImageListener(FusionDrone.fDrone);
-				drone.selectVideoChannel(ARDrone.VideoChannel.VERTICAL_ONLY);
+				drone.selectVideoChannel(ARDrone.VideoChannel.VERTICAL_IN_HORIZONTAL);
 				try {
 					drone.sendVideoOnData();
 					//drone.enableAutomaticVideoBitrate();
@@ -382,6 +382,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		@Override
 		protected Void doInBackground(Void... params) {
 			b =  Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.RGB_565);
+			b.setDensity(100);
 			return null;
 		}
 		@Override

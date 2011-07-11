@@ -106,11 +106,13 @@ public class BufferedVideoImage {
 	 */
 	private int pixelRowSize;
 	private ByteBuffer imageStream;
+	private byte[] imageStreamByteArray;
 	private ImageSlice imageSlice;
 	private int[] javaPixelData;
 
 	public void addImageStream(ByteBuffer stream) {
 		imageStream = stream;
+		imageStreamByteArray = imageStream.array();
 		processStream();
 	}
 
@@ -146,7 +148,9 @@ public class BufferedVideoImage {
 		int lumaElementValue2 = 0;
 		int chromaBlueValue = 0;
 		int chromaRedValue = 0;
-
+		
+		int x = 0;
+		
 		int[] pixelDataQuadrantOffsets = new int[] { 0, BLOCK_WIDTH, width * BLOCK_WIDTH, (width * BLOCK_WIDTH) + BLOCK_WIDTH };
 		short[] mbDBArr;
 		short[][] dbArr;
@@ -181,7 +185,7 @@ public class BufferedVideoImage {
 							int deltaIndex = 2 * horizontalStep + pixel;
 							lumaElementValue1 = /*macroBlock.DataBlocks[quadrant]*/mbDBArr[lumaElementIndex1 + deltaIndex] << 8;
 							lumaElementValue2 = /*macroBlock.DataBlocks[quadrant]*/mbDBArr[lumaElementIndex2 + deltaIndex] << 8;
-							int x = lumaElementValue1 + vr;
+							x = lumaElementValue1 + vr;
 							if (x < 0)
 							{
 								r = 0;
@@ -257,6 +261,7 @@ public class BufferedVideoImage {
 	}
 
 	//private static int countLeadingZeros(uint value) {
+	@SuppressWarnings("unused")
 	private static int countLeadingZeros(int value) {
 		int accum = 0;
 		
@@ -280,7 +285,7 @@ public class BufferedVideoImage {
 		int streamCode = 0;
 
 		int streamLength = 0;
-		;
+		
 		int zeroCount = 0;
 		int temp = 0;
 		int sign = 0;
@@ -307,7 +312,22 @@ public class BufferedVideoImage {
 		// addtional bits
 		// 3 - Calculate value of run, for coarse value 00001 this is (111) + 8
 
-		zeroCount = countLeadingZeros(streamCode); // - (1)
+		
+		
+		
+		//zeroCount = countLeadingZeros(streamCode); // - (1)
+		zeroCount = 0;
+		zeroCount += CLZLUT[streamCode >>> 24];
+		if (zeroCount == 8)
+			zeroCount += CLZLUT[(streamCode >>> 16) & 0xFF];
+		if (zeroCount == 16)
+			zeroCount += CLZLUT[(streamCode >>> 8) & 0xFF];
+		if (zeroCount == 24)
+			zeroCount += CLZLUT[streamCode & 0xFF];
+		
+		
+		
+		
 		streamCode <<= (zeroCount + 1);//streamCode.shiftLeftEquals(zeroCount + 1); // - (2) -> shift left to get
 		// rid of the coarse value
 		streamLength += zeroCount + 1; // - position bit pointer to keep track
@@ -358,7 +378,21 @@ public class BufferedVideoImage {
 		// 3 - Calculate value of run, for coarse value 00001 this is (xxx) + 8,
 		// multiply by sign
 
-		zeroCount = countLeadingZeros(streamCode);
+		//zeroCount = countLeadingZeros(streamCode);
+		zeroCount = 0;
+		zeroCount += CLZLUT[streamCode >>> 24];
+		if (zeroCount == 8)
+			zeroCount += CLZLUT[(streamCode >>> 16) & 0xFF];
+		if (zeroCount == 16)
+			zeroCount += CLZLUT[(streamCode >>> 8) & 0xFF];
+		if (zeroCount == 24)
+			zeroCount += CLZLUT[streamCode & 0xFF];
+		
+		
+		
+		
+		
+		
 		streamCode <<=(zeroCount + 1);//streamCode.shiftLeftEquals(zeroCount + 1); // - (1)
 		streamLength += zeroCount + 1; // - position bit pointer to keep track
 		// off how many bits to consume later on
@@ -408,7 +442,7 @@ public class BufferedVideoImage {
 			last[0] = false;
 		}
 
-		readStreamData(streamLength);
+		readStreamDataInt(streamLength);
 	}
 
 	private void getBlockBytes(boolean acCoefficientsAvailable) {
@@ -421,14 +455,15 @@ public class BufferedVideoImage {
 		for (int i = 0; i < dataBlockBuffer.length; i++)
 			dataBlockBuffer[i] = 0;
 
-		uint dcCoefficient = readStreamData(10);
+		//uint dcCoefficient = readStreamData(10);
+		int dcCoefficientTemp = readStreamDataInt(10);
 
 		if (quantizerMode == TABLE_QUANTIZATION_MODE) {
-			dataBlockBuffer[0] = (short) (dcCoefficient.times(QUANTIZER_VALUES[0]));
+			dataBlockBuffer[0] = (short) (dcCoefficientTemp *QUANTIZER_VALUES[0]);// (short) (dcCoefficient.times(QUANTIZER_VALUES[0]));
 
 			if (acCoefficientsAvailable) {
 				decodeFieldBytes(run, level, last);
-
+				
 				while (!last[0]) {
 					zigZagPosition += run[0] + 1;
 					matrixPosition = ZIGZAG_POSITIONS[zigZagPosition];
@@ -806,7 +841,7 @@ public class BufferedVideoImage {
 		int data = 0;//uint data = new uint(0);
 		int stream_field = streamField;//streamField.intValue();//uint stream_field = streamField;
 		int stream_field_bit_index = streamFieldBitIndex;
-		byte[] streamArr = stream.array();
+		//byte[] streamArr = stream.array();
 		//ByteBuffer bb = ByteBuffer.allocate(4);
 		while (count > (32 - stream_field_bit_index) && streamIndex < (imageStream.capacity() >> 2)) {
 			//data = (data.shiftLeft(32 - stream_field_bit_index)).or(stream_field.shiftRight(stream_field_bit_index));
@@ -828,10 +863,8 @@ public class BufferedVideoImage {
 			temp3 = (temp3 + (streamArr[streamIndex * 4 + 1] & 0x000000FF)) << 8;
 			temp3 = (temp3 + (streamArr[streamIndex * 4 + 2] & 0x000000FF)) << 8;
 			temp3 = (temp3 + (streamArr[streamIndex * 4 + 3] & 0x000000FF));*/
-			stream_field = ((streamArr[streamIndex * 4 + 3] & 0x000000FF) << 8);
-			stream_field = (stream_field + (streamArr[streamIndex * 4 + 2] & 0x000000FF)) << 8;
-			stream_field = (stream_field + (streamArr[streamIndex * 4 + 1] & 0x000000FF)) << 8;
-			stream_field = (stream_field + (streamArr[streamIndex * 4 + 0] & 0x000000FF));
+			
+			stream_field = ((imageStreamByteArray[streamIndex * 4 + 0] & 0xFF) | ((imageStreamByteArray[streamIndex * 4 + 1] & 0xFF) << 8) | ((imageStreamByteArray[streamIndex * 4 + 2] & 0xFF) << 16) | ((imageStreamByteArray[streamIndex * 4 + 3] & 0xFF) << 24));
 			
 			//bb.put(streamArr[streamIndex * 4 + 3]);
 			//bb.put(streamArr[streamIndex * 4 + 2]);
@@ -879,25 +912,25 @@ public class BufferedVideoImage {
 
 			if (!pictureComplete) {
 				for (int count = 0; count < blockCount; count++) {
-					uint macroBlockEmpty = readStreamData(1);
-
-					if (macroBlockEmpty.intValue() == (0))
+					//uint macroBlockEmpty = readStreamData(1);
+					int macroBlockEmpty = readStreamDataInt(1);
+					if (macroBlockEmpty/*.intValue()*/ == (0))
 					{
-						uint acCoefficients = readStreamData(8);
-
-						blockY0HasAcComponents = acCoefficients.shiftRight(0).and(1).intValue() == 1;
-						blockY1HasAcComponents = acCoefficients.shiftRight(1).and(1).intValue() == 1;
-						blockY2HasAcComponents = acCoefficients.shiftRight(2).and(1).intValue() == 1;
-						blockY3HasAcComponents = acCoefficients.shiftRight(3).and(1).intValue() == 1;
-						blockCbHasAcComponents = acCoefficients.shiftRight(4).and(1).intValue() == 1;
-						blockCrHasAcComponents = acCoefficients.shiftRight(5).and(1).intValue() == 1;
-
-						if (acCoefficients.shiftRight(6).and(1).intValue() == 1)
+						//UG ADDED
+						int acCoefficientsTemp = readStreamDataInt(8);
+						blockY0HasAcComponents = (acCoefficientsTemp >>> 0 & 1) == 1;
+						blockY1HasAcComponents = (acCoefficientsTemp >>> 1 & 1) == 1;
+						blockY2HasAcComponents = (acCoefficientsTemp >>> 2 & 1) == 1;
+						blockY3HasAcComponents = (acCoefficientsTemp >>> 3 & 1) == 1;
+						blockCbHasAcComponents = (acCoefficientsTemp >>> 4 & 1) == 1;
+						blockCrHasAcComponents = (acCoefficientsTemp >>> 5 & 1) == 1;
+						
+						if((acCoefficientsTemp >>> 6 & 1) == 1)
 						{
-							uint quantizer_mode = readStreamData(2);
-							quantizerMode = (int) ((quantizer_mode.intValue() < 2) ? ~quantizer_mode.flipBits() : quantizer_mode.intValue());
+							int quantizer_modeTemp = readStreamDataInt(2);
+							quantizerMode = (int) ((quantizer_modeTemp < 2) ? ~quantizer_modeTemp : quantizer_modeTemp);
 						}
-
+						
 						getBlockBytes(blockY0HasAcComponents);
 						inverseTransform(count, 0);
 
@@ -915,6 +948,57 @@ public class BufferedVideoImage {
 
 						getBlockBytes(blockCrHasAcComponents);
 						inverseTransform(count, 5);
+						
+						
+						/*
+						//uint acCoefficients = readStreamData(8);
+						
+
+						blockY0HasAcComponents = acCoefficients.shiftRight(0).and(1).intValue() == 1;
+						blockY1HasAcComponents = acCoefficients.shiftRight(1).and(1).intValue() == 1;
+						blockY2HasAcComponents = acCoefficients.shiftRight(2).and(1).intValue() == 1;
+						blockY3HasAcComponents = acCoefficients.shiftRight(3).and(1).intValue() == 1;
+						blockCbHasAcComponents = acCoefficients.shiftRight(4).and(1).intValue() == 1;
+						blockCrHasAcComponents = acCoefficients.shiftRight(5).and(1).intValue() == 1;
+						
+						if(blockY0HasAcComponents != ((acCoefficientsTemp >>> 0 & 1) == 1))//(
+						{//(
+							Log.v("DRONE", "They are incorrect blocsk.");//(
+						}//(
+
+						if (acCoefficients.shiftRight(6).and(1).intValue() == 1)
+						{
+							uint quantizer_mode = readStreamData(2);
+							quantizerMode = (int) ((quantizer_mode.intValue() < 2) ? quantizer_mode.flipBits() : quantizer_mode.intValue());
+						}
+						
+						if((acCoefficientsTemp >>> 6 & 1) == 1)//(
+						{//(
+							int quantizer_modeTemp = readStreamDataInt(2);//(
+							int quantizerModeTemp = (int) ((quantizer_modeTemp < 2) ? ~quantizer_modeTemp : quantizer_modeTemp);//(
+							if(quantizerModeTemp != quantizerMode)//(
+								Log.v("DRONE", "They are incorrect blocsk. 2222");//(
+						}//(
+						
+						
+						getBlockBytes(blockY0HasAcComponents);
+						inverseTransform(count, 0);
+
+						getBlockBytes(blockY1HasAcComponents);
+						inverseTransform(count, 1);
+
+						getBlockBytes(blockY2HasAcComponents);
+						inverseTransform(count, 2);
+
+						getBlockBytes(blockY3HasAcComponents);
+						inverseTransform(count, 3);
+
+						getBlockBytes(blockCbHasAcComponents);
+						inverseTransform(count, 4);
+
+						getBlockBytes(blockCrHasAcComponents);
+						inverseTransform(count, 5);
+						*/
 					}
 				}
 
@@ -927,19 +1011,25 @@ public class BufferedVideoImage {
 	private void readHeader() {
 		alignStreamData();
 
-		uint code = readStreamData(22);
+		/*uint code = readStreamData(22);
 		uint startCode = new uint(code.and(~0x1F));
 
 		if (startCode.intValue() == 32) {
-			if ((code.and(0x1F).intValue()) == 0x1F) {
+			if ((code.and(0x1F).intValue()) == 0x1F) {*/
+		
+		int code = readStreamDataInt(22);
+		int startCode = code & (~0x1F);
+		
+		if(startCode == 32) {
+			if((code & 0x1F) == 0x1F) {
 				pictureComplete = true;
 			} else {
 				if (sliceIndex++ == 0) {
-					pictureFormat =  readStreamData(2).intValue();
-					resolution =  readStreamData(3).intValue();
-					pictureType =  readStreamData(3).intValue();
-					quantizerMode =  readStreamData(5).intValue();
-					frameIndex =  readStreamData(32).intValue();
+					pictureFormat =  readStreamDataInt(2);//readStreamData(2).intValue();
+					resolution =  readStreamDataInt(3);//readStreamData(3).intValue();
+					pictureType =  readStreamDataInt(3);//readStreamData(3).intValue();
+					quantizerMode =  readStreamDataInt(5);//readStreamData(5).intValue();
+					frameIndex =  readStreamDataInt(32);//readStreamData(32).intValue();
 
 					switch (pictureFormat) {
 					case CIF:
@@ -970,7 +1060,7 @@ public class BufferedVideoImage {
 						}
 					}
 				} else {
-					quantizerMode = (int) readStreamData(5).intValue();
+					quantizerMode = /*(int)*/ readStreamDataInt(5);//readStreamData(5).intValue();
 				}
 			}
 		}
@@ -978,11 +1068,12 @@ public class BufferedVideoImage {
 
 	//contains common code for optimization purposes
 	//private int readStreamData(int count) {		
+	@SuppressWarnings("unused")
 	private uint readStreamData(int count) {		
 		
 		//uint data = new uint(0);
 		int data = 0;
-		byte[] imageStreamArr = imageStream.array();
+		//byte[] imageStreamArr = imageStream.array();
 		while (count > (32 - streamFieldBitIndex)) {
 			data = data << (32 - streamFieldBitIndex) | (streamField/*.intValue()*/ >>> streamFieldBitIndex	);//(data.shiftLeft((int) (32 - streamFieldBitIndex)).or(streamField.shiftRight(streamFieldBitIndex)));
 			count -= 32 - streamFieldBitIndex;
@@ -997,11 +1088,12 @@ public class BufferedVideoImage {
 			bb.flip();
 			streamField = bb.getInt();*/
 			
-			streamField = ((imageStreamArr[streamIndex * 4 + 3] & 0x000000FF) << 8);
+			/*streamField = ((imageStreamArr[streamIndex * 4 + 3] & 0x000000FF) << 8);
 			streamField = (streamField + (imageStreamArr[streamIndex * 4 + 2] & 0x000000FF)) << 8;
 			streamField = (streamField + (imageStreamArr[streamIndex * 4 + 1] & 0x000000FF)) << 8;
 			streamField = (streamField + (imageStreamArr[streamIndex * 4 + 0] & 0x000000FF));
-			
+			*/
+			streamField = ((imageStreamByteArray[streamIndex * 4 + 0] & 0xFF) | ((imageStreamByteArray[streamIndex * 4 + 1] & 0xFF) << 8) | ((imageStreamByteArray[streamIndex * 4 + 2] & 0xFF) << 16) | ((imageStreamByteArray[streamIndex * 4 + 3] & 0xFF) << 24));
 			
 			
 			streamFieldBitIndex = 0;
@@ -1016,5 +1108,45 @@ public class BufferedVideoImage {
 
 		return new uint(data);
 		//return data;
+	}
+	
+	private int readStreamDataInt(int count)
+	{
+		//uint data = new uint(0);
+		int data = 0;
+		//byte[] imageStreamArr = imageStream.array();
+		while (count > (32 - streamFieldBitIndex)) {
+			data = data << (32 - streamFieldBitIndex) | (streamField/*.intValue()*/ >>> streamFieldBitIndex	);//(data.shiftLeft((int) (32 - streamFieldBitIndex)).or(streamField.shiftRight(streamFieldBitIndex)));
+			count -= 32 - streamFieldBitIndex;
+			
+			
+			//streamField = new uint(imageStream, streamIndex * 4);
+			/*ByteBuffer bb = ByteBuffer.allocate(4);
+			bb.put(imageStreamArr[streamIndex * 4 + 3]);
+			bb.put(imageStreamArr[streamIndex * 4 + 2]);
+			bb.put(imageStreamArr[streamIndex * 4 + 1]);
+			bb.put(imageStreamArr[streamIndex * 4 + 0]);
+			bb.flip();
+			streamField = bb.getInt();*/
+			
+			/*streamField = ((imageStreamArr[streamIndex * 4 + 3] & 0x000000FF) << 8);
+			streamField = (streamField + (imageStreamArr[streamIndex * 4 + 2] & 0x000000FF)) << 8;
+			streamField = (streamField + (imageStreamArr[streamIndex * 4 + 1] & 0x000000FF)) << 8;
+			streamField = (streamField + (imageStreamArr[streamIndex * 4 + 0] & 0x000000FF));
+			*/
+			streamField = ((imageStreamByteArray[streamIndex * 4 + 0] & 0xFF) | ((imageStreamByteArray[streamIndex * 4 + 1] & 0xFF) << 8) | ((imageStreamByteArray[streamIndex * 4 + 2] & 0xFF) << 16) | ((imageStreamByteArray[streamIndex * 4 + 3] & 0xFF) << 24));
+			
+			
+			streamFieldBitIndex = 0;
+			streamIndex++;
+		}
+
+		if (count > 0) {
+			data = (data << count) | (streamField/*.intValue()*/ >>> (32 - count));//data.shiftLeft(count).or(streamField.shiftRight(32 - count));
+			streamField <<= count;//streamField.shiftLeftEquals(count);
+			streamFieldBitIndex += count;
+		}
+
+		return data;
 	}
 }
