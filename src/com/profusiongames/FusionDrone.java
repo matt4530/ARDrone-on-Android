@@ -254,7 +254,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				drone.playLED(1, 10, 4);
 				drone.addNavDataListener(FusionDrone.fDrone);
 				drone.addImageListener(FusionDrone.fDrone);
-				drone.selectVideoChannel(ARDrone.VideoChannel.VERTICAL_IN_HORIZONTAL);
+				drone.selectVideoChannel(ARDrone.VideoChannel.VERTICAL_ONLY);
 				try {
 					drone.sendVideoOnData();
 					//drone.enableAutomaticVideoBitrate();

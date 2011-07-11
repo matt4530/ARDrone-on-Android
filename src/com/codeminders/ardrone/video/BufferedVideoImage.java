@@ -107,12 +107,14 @@ public class BufferedVideoImage {
 	private int pixelRowSize;
 	private ByteBuffer imageStream;
 	private byte[] imageStreamByteArray;
+	private int imageStreamCapacity;
 	private ImageSlice imageSlice;
 	private int[] javaPixelData;
 
 	public void addImageStream(ByteBuffer stream) {
 		imageStream = stream;
 		imageStreamByteArray = imageStream.array();
+		imageStreamCapacity = imageStream.capacity();
 		processStream();
 	}
 
@@ -519,7 +521,9 @@ public class BufferedVideoImage {
 		int tmp10, tmp11, tmp12, tmp13;
 
 		int pointer = 0;
-
+		
+		
+		
 		for (int index = 8; index > 0; index--) {
 			if (dataBlockBuffer[pointer + 8] == 0 && dataBlockBuffer[pointer + 16] == 0 && dataBlockBuffer[pointer + 24] == 0 && dataBlockBuffer[pointer + 32] == 0 && dataBlockBuffer[pointer + 40] == 0 && dataBlockBuffer[pointer + 48] == 0 && dataBlockBuffer[pointer + 56] == 0) {
 				int dcValue = dataBlockBuffer[pointer] << PASS1_BITS;
@@ -653,9 +657,10 @@ public class BufferedVideoImage {
 
 			pointer += 8;
 		}
-		short[] temp = imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex];
-		for (int i = 0; i < data.length; i++)
-			temp[i] = data[i]; //imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex][i] = data[i];
+		System.arraycopy(data, 0, imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex], 0, data.length);
+		//short[] temp = imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex];
+		//for (int i = 0; i < data.length; i++)
+			//temp[i] = data[i]; //imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex][i] = data[i];
 	}
 
 	@SuppressWarnings("unused")
@@ -843,7 +848,7 @@ public class BufferedVideoImage {
 		int stream_field_bit_index = streamFieldBitIndex;
 		//byte[] streamArr = stream.array();
 		//ByteBuffer bb = ByteBuffer.allocate(4);
-		while (count > (32 - stream_field_bit_index) && streamIndex < (imageStream.capacity() >> 2)) {
+		while (count > (32 - stream_field_bit_index) && streamIndex < (imageStreamCapacity >> 2)) {
 			//data = (data.shiftLeft(32 - stream_field_bit_index)).or(stream_field.shiftRight(stream_field_bit_index));
 			data = (data << (32 - stream_field_bit_index)) | ( stream_field >>> stream_field_bit_index);
 			count -= 32 - stream_field_bit_index;
@@ -907,7 +912,7 @@ public class BufferedVideoImage {
 		sliceIndex = 0;
 		pictureComplete = false;
 
-		while (!pictureComplete && streamIndex < (imageStream.capacity() >> 2)) {
+		while (!pictureComplete && streamIndex < (imageStreamCapacity >> 2)) {
 			readHeader();
 
 			if (!pictureComplete) {
