@@ -30,6 +30,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -46,7 +47,6 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private static ARDrone drone;
 	private static SensorManager sensorManager;
 
-	private static boolean hasWaitedSomeTime = false; //for methods we dont want to do till the app has some time to boot
 	private static boolean isConnected = false;
 	private static boolean isFlying = false;
 	private int batteryLife = 0;
@@ -64,12 +64,12 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private Button launchButton;
 	private TextView batteryText;
 	private ImageView videoDisplay;
-	private Button animateButton;
 	/* Components */
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);
 		fDrone = this;
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -90,6 +90,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		sensorManager.unregisterListener(this);
         super.onStop();
     }
+	
 	
 	private void getUIComponents() {
 		statusBar = (TextView) findViewById(R.id.statusBar);
@@ -114,13 +115,13 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				}
 			}
 		});
-		launchButton = (Button)findViewById(R.id.Button01);
-		launchButton.setVisibility(Button.INVISIBLE);
+		launchButton = (Button)findViewById(R.id.launchButton);
+		//launchButton.setVisibility(Button.INVISIBLE);
 		launchButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				Log.v("DRONE", "Clicked Launch button");
 				if (!isConnected) {
-					launchButton.setVisibility(Button.INVISIBLE); //just in case a bug makes it visible when not connected
+					//launchButton.setVisibility(Button.INVISIBLE); //just in case a bug makes it visible when not connected
 				} else if(isFlying) {
 					try { drone.land(); launchButton.setText("Takeoff"); isFlying = false;} 
 					catch (IOException e) {e.printStackTrace();}
@@ -132,17 +133,6 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		});
 		batteryText = (TextView) findViewById(R.id.batteryStatusText);
 		videoDisplay = (ImageView) findViewById(R.id.droneVideoDisplay);
-		animateButton = (Button) findViewById(R.id.animateButton);
-		animateButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				//try {
-					//drone.move(0.0f, 0.0f, 0.0f, 0.1f);
-				//} catch (IOException e) {
-					//e.printStackTrace();
-				//}
-				hasWaitedSomeTime = true;
-			}
-		});
 	}
 
 	public static ARDrone getARDrone() {
@@ -201,7 +191,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private float sensorThreshold = 3;
 	@Override
 	public void onSensorChanged(SensorEvent e) {
-		if(!hasWaitedSomeTime) return;
+		if(Math.random() < 1) return;
 		Log.v("DRONE", "sensor: " + e.sensor + ", x: " + MathUtil.trunk(e.values[0]) + ", y: " + MathUtil.trunk(e.values[1]) + ", z: " + MathUtil.trunk(e.values[2]));
 		if(startX == -1f) 
 		{
@@ -255,11 +245,11 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				drone.addNavDataListener(FusionDrone.fDrone);
 				drone.addImageListener(FusionDrone.fDrone);
 				drone.selectVideoChannel(ARDrone.VideoChannel.VERTICAL_ONLY);
-				try {
+				/*try {
 					drone.sendVideoOnData();
 					//drone.enableAutomaticVideoBitrate();
 				}
-				catch(Exception e) { e.printStackTrace();}
+				catch(Exception e) { e.printStackTrace();}*/
 				/*FusionDrone.this.runOnUiThread(new Runnable() { 
 					public void run() {
 						//FusionDrone.drone.addNavDataListener(FusionDrone.this);
@@ -287,7 +277,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		protected void onPostExecute(Boolean success) {
 			if (success.booleanValue()) {
 				connectionStartButton.setText("Disconnect...");
-				launchButton.setVisibility(Button.VISIBLE);
+				//launchButton.setVisibility(Button.VISIBLE);
 			} else {
 				connectionStartButton.setText("Error 1. Retry?");
 			}
@@ -339,7 +329,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 			if (success.booleanValue()) {
 				connectionStartButton.setText("Connect...");
 				connectionStartButton.setEnabled(true);
-				launchButton.setVisibility(Button.INVISIBLE);
+				//launchButton.setVisibility(Button.INVISIBLE);
 				batteryText.setText("Battery Status");
 			} else {
 				connectionStartButton.setText("Error 2. Retry?");

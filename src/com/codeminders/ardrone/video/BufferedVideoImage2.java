@@ -436,7 +436,9 @@ public class BufferedVideoImage2 {
 		int tmp10, tmp11, tmp12, tmp13;
 
 		int pointer = 0;
-
+		
+		
+		
 		for (int index = 8; index > 0; index--) {
 			if (dataBlockBuffer[pointer + 8] == 0 && dataBlockBuffer[pointer + 16] == 0 && dataBlockBuffer[pointer + 24] == 0 && dataBlockBuffer[pointer + 32] == 0 && dataBlockBuffer[pointer + 40] == 0 && dataBlockBuffer[pointer + 48] == 0 && dataBlockBuffer[pointer + 56] == 0) {
 				int dcValue = dataBlockBuffer[pointer] << PASS1_BITS;
@@ -570,9 +572,10 @@ public class BufferedVideoImage2 {
 
 			pointer += 8;
 		}
-
-		for (int i = 0; i < data.length; i++)
-			imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex][i] = data[i];
+		System.arraycopy(data, 0, imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex], 0, data.length);
+		//short[] temp = imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex];
+		//for (int i = 0; i < data.length; i++)
+			//temp[i] = data[i]; //imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex][i] = data[i];
 	}
 	
 	

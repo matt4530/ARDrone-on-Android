@@ -512,6 +512,40 @@ public class BufferedVideoImage {
 		return width;
 	}
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	void inverseTransform(int macroBlockIndex, int dataBlockIndex) {
 		int[] workSpace = new int[64];
 		short[] data = new short[64];
@@ -520,11 +554,11 @@ public class BufferedVideoImage {
 		int tmp0, tmp1, tmp2, tmp3;
 		int tmp10, tmp11, tmp12, tmp13;
 
-		int pointer = 0;
+		int pointer;
 		
 		
 		
-		for (int index = 8; index > 0; index--) {
+		for (pointer = 0; pointer < 8; pointer++) {
 			if (dataBlockBuffer[pointer + 8] == 0 && dataBlockBuffer[pointer + 16] == 0 && dataBlockBuffer[pointer + 24] == 0 && dataBlockBuffer[pointer + 32] == 0 && dataBlockBuffer[pointer + 40] == 0 && dataBlockBuffer[pointer + 48] == 0 && dataBlockBuffer[pointer + 56] == 0) {
 				int dcValue = dataBlockBuffer[pointer] << PASS1_BITS;
 
@@ -536,127 +570,117 @@ public class BufferedVideoImage {
 				workSpace[pointer + 40] = dcValue;
 				workSpace[pointer + 48] = dcValue;
 				workSpace[pointer + 56] = dcValue;
-
-				pointer++;
-				continue;
 			}
+			else
+			{
+				z2 = dataBlockBuffer[pointer + 16];
+				z3 = dataBlockBuffer[pointer + 48];
+	
+				z1 = (z2 + z3) * FIX_0_541196100;
+				tmp2 = z1 + z3 * -FIX_1_847759065;
+				tmp3 = z1 + z2 * FIX_0_765366865;
+	
+				z2 = dataBlockBuffer[pointer];
+				z3 = dataBlockBuffer[pointer + 32];
+	
+				tmp0 = (z2 + z3) << BITS;
+				tmp1 = (z2 - z3) << BITS;
+	
+				tmp10 = tmp0 + tmp3;
+				tmp13 = tmp0 - tmp3;
+				tmp11 = tmp1 + tmp2;
+				tmp12 = tmp1 - tmp2;
+	
+				tmp0 = dataBlockBuffer[pointer + 56];
+				tmp1 = dataBlockBuffer[pointer + 40];
+				tmp2 = dataBlockBuffer[pointer + 24];
+				tmp3 = dataBlockBuffer[pointer + 8];
+	
+				z1 = tmp0 + tmp3;
+				z2 = tmp1 + tmp2;
+				z3 = tmp0 + tmp2;
+				z4 = tmp1 + tmp3;
+				z5 = (z3 + z4) * FIX_1_175875602;
+	
+				tmp0 = tmp0 * FIX_0_298631336;
+				tmp1 = tmp1 * FIX_2_053119869;
+				tmp2 = tmp2 * FIX_3_072711026;
+				tmp3 = tmp3 * FIX_1_501321110;
+				z1 = z1 * -FIX_0_899976223;
+				z2 = z2 * -FIX_2_562915447;
+				z3 = z3 * -FIX_1_961570560;
+				z4 = z4 * -FIX_0_390180644;
+	
+				z3 += z5;
+				z4 += z5;
+	
+				tmp0 += z1 + z3;
+				tmp1 += z2 + z4;
+				tmp2 += z2 + z3;
+				tmp3 += z1 + z4;
+	
+				workSpace[pointer + 0] = ((tmp10 + tmp3 + (1 << F1)) >> F2);
+				workSpace[pointer + 56] = ((tmp10 - tmp3 + (1 << F1)) >> F2);
+				workSpace[pointer + 8] = ((tmp11 + tmp2 + (1 << F1)) >> F2);
+				workSpace[pointer + 48] = ((tmp11 - tmp2 + (1 << F1)) >> F2);
+				workSpace[pointer + 16] = ((tmp12 + tmp1 + (1 << F1)) >> F2);
+				workSpace[pointer + 40] = ((tmp12 - tmp1 + (1 << F1)) >> F2);
+				workSpace[pointer + 24] = ((tmp13 + tmp0 + (1 << F1)) >> F2);
+				workSpace[pointer + 32] = ((tmp13 - tmp0 + (1 << F1)) >> F2);
 
-			z2 = dataBlockBuffer[pointer + 16];
-			z3 = dataBlockBuffer[pointer + 48];
-
-			z1 = (z2 + z3) * FIX_0_541196100;
-			tmp2 = z1 + z3 * -FIX_1_847759065;
-			tmp3 = z1 + z2 * FIX_0_765366865;
-
-			z2 = dataBlockBuffer[pointer];
-			z3 = dataBlockBuffer[pointer + 32];
-
-			tmp0 = (z2 + z3) << BITS;
-			tmp1 = (z2 - z3) << BITS;
-
-			tmp10 = tmp0 + tmp3;
-			tmp13 = tmp0 - tmp3;
-			tmp11 = tmp1 + tmp2;
-			tmp12 = tmp1 - tmp2;
-
-			tmp0 = dataBlockBuffer[pointer + 56];
-			tmp1 = dataBlockBuffer[pointer + 40];
-			tmp2 = dataBlockBuffer[pointer + 24];
-			tmp3 = dataBlockBuffer[pointer + 8];
-
-			z1 = tmp0 + tmp3;
-			z2 = tmp1 + tmp2;
-			z3 = tmp0 + tmp2;
-			z4 = tmp1 + tmp3;
-			z5 = (z3 + z4) * FIX_1_175875602;
-
-			tmp0 = tmp0 * FIX_0_298631336;
-			tmp1 = tmp1 * FIX_2_053119869;
-			tmp2 = tmp2 * FIX_3_072711026;
-			tmp3 = tmp3 * FIX_1_501321110;
-			z1 = z1 * -FIX_0_899976223;
-			z2 = z2 * -FIX_2_562915447;
-			z3 = z3 * -FIX_1_961570560;
-			z4 = z4 * -FIX_0_390180644;
-
-			z3 += z5;
-			z4 += z5;
-
-			tmp0 += z1 + z3;
-			tmp1 += z2 + z4;
-			tmp2 += z2 + z3;
-			tmp3 += z1 + z4;
-
-			workSpace[pointer + 0] = ((tmp10 + tmp3 + (1 << F1)) >> F2);
-			workSpace[pointer + 56] = ((tmp10 - tmp3 + (1 << F1)) >> F2);
-			workSpace[pointer + 8] = ((tmp11 + tmp2 + (1 << F1)) >> F2);
-			workSpace[pointer + 48] = ((tmp11 - tmp2 + (1 << F1)) >> F2);
-			workSpace[pointer + 16] = ((tmp12 + tmp1 + (1 << F1)) >> F2);
-			workSpace[pointer + 40] = ((tmp12 - tmp1 + (1 << F1)) >> F2);
-			workSpace[pointer + 24] = ((tmp13 + tmp0 + (1 << F1)) >> F2);
-			workSpace[pointer + 32] = ((tmp13 - tmp0 + (1 << F1)) >> F2);
-
-			pointer++;
+			}
 		}
 
-		pointer = 0;
 
-		for (int index = 0; index < 8; index++) {
+		for (pointer = 0; pointer < 64; pointer += 8)
+		{
 			z2 = workSpace[pointer + 2];
 			z3 = workSpace[pointer + 6];
 
 			z1 = (z2 + z3) * FIX_0_541196100;
 			tmp2 = z1 + z3 * -FIX_1_847759065;
 			tmp3 = z1 + z2 * FIX_0_765366865;
+			
+			z1 = workSpace[pointer];
+			z2 = workSpace[pointer + 4];
 
-			tmp0 = (workSpace[pointer + 0] + workSpace[pointer + 4]) << BITS;
-			tmp1 = (workSpace[pointer + 0] - workSpace[pointer + 4]) << BITS;
+			tmp0 = (z1 + z2) << BITS;
+			tmp1 = (z1 - z2) << BITS;
 
 			tmp10 = tmp0 + tmp3;
 			tmp13 = tmp0 - tmp3;
 			tmp11 = tmp1 + tmp2;
 			tmp12 = tmp1 - tmp2;
 
-			tmp0 = workSpace[pointer + 7];
-			tmp1 = workSpace[pointer + 5];
-			tmp2 = workSpace[pointer + 3];
 			tmp3 = workSpace[pointer + 1];
+			tmp2 = workSpace[pointer + 3];
+			tmp1 = workSpace[pointer + 5];
+			tmp0 = workSpace[pointer + 7];
 
-			z1 = tmp0 + tmp3;
-			z2 = tmp1 + tmp2;
+			z1 = (tmp0 + tmp3) * -FIX_0_899976223;
+			z2 = (tmp1 + tmp2) * -FIX_2_562915447;
 			z3 = tmp0 + tmp2;
 			z4 = tmp1 + tmp3;
-
+			
 			z5 = (z3 + z4) * FIX_1_175875602;
 
-			tmp0 = tmp0 * FIX_0_298631336;
-			tmp1 = tmp1 * FIX_2_053119869;
-			tmp2 = tmp2 * FIX_3_072711026;
-			tmp3 = tmp3 * FIX_1_501321110;
-			z1 = z1 * -FIX_0_899976223;
-			z2 = z2 * -FIX_2_562915447;
-			z3 = z3 * -FIX_1_961570560;
-			z4 = z4 * -FIX_0_390180644;
+			z3 = (z3 * -FIX_1_961570560) + z5;
+			z4 = (z4 * -FIX_0_390180644) + z5;
+			
+			tmp0 = (tmp0 * FIX_0_298631336) + z1 + z3;
+			tmp1 = (tmp1 * FIX_2_053119869) + z2 + z4;
+			tmp2 = (tmp2 * FIX_3_072711026) + z2 + z3;
+			tmp3 = (tmp3 * FIX_1_501321110) + z1 + z4;
 
-			z3 += z5;
-			z4 += z5;
-
-			tmp0 += z1 + z3;
-			tmp1 += z2 + z4;
-			tmp2 += z2 + z3;
-			tmp3 += z1 + z4;
-
-			data[pointer + 0] = (short) ((tmp10 + tmp3) >> F3);
-			data[pointer + 7] = (short) ((tmp10 - tmp3) >> F3);
+			data[pointer] = (short) ((tmp10 + tmp3) >> F3);
 			data[pointer + 1] = (short) ((tmp11 + tmp2) >> F3);
-			data[pointer + 6] = (short) ((tmp11 - tmp2) >> F3);
 			data[pointer + 2] = (short) ((tmp12 + tmp1) >> F3);
-			data[pointer + 5] = (short) ((tmp12 - tmp1) >> F3);
 			data[pointer + 3] = (short) ((tmp13 + tmp0) >> F3);
 			data[pointer + 4] = (short) ((tmp13 - tmp0) >> F3);
-
-			pointer += 8;
-		}
+			data[pointer + 5] = (short) ((tmp12 - tmp1) >> F3);
+			data[pointer + 6] = (short) ((tmp11 - tmp2) >> F3);
+			data[pointer + 7] = (short) ((tmp10 - tmp3) >> F3);
+			}
 		System.arraycopy(data, 0, imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex], 0, data.length);
 		//short[] temp = imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex];
 		//for (int i = 0; i < data.length; i++)

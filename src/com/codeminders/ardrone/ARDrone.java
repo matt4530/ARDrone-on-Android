@@ -335,7 +335,7 @@ public class ARDrone {
 
 	private void doDisconnect() throws IOException {
 		//ADDDED by Profusion
-		stopSendVideoOnData();
+		/*stopSendVideoOnData();*/
 		
 		if (cmd_queue != null)
 			cmd_queue.add(new QuitCommand());
@@ -534,12 +534,19 @@ public class ARDrone {
 		setConfigOption("general:navdata_demo", "TRUE");
 	}
 	
-	//ADDDED by Profusion
+	/*//ADDDED by Profusion
 	public void sendVideoOnData()throws IOException {
-		setConfigOption("general:video_enable", "TRUE");
+		//setConfigOption("general:video_enable", "TRUE");
 	}
 	//ADDDED by Profusion
 	public void stopSendVideoOnData()throws IOException {
+		setConfigOption("general:video_enable", "FALSE");
+	}*/
+	
+	public void sendTagDetectionOnData()throws IOException {
+		setConfigOption("general:video_enable", "TRUE");
+	}
+	public void stopTagDetectionOnData()throws IOException {
 		setConfigOption("general:video_enable", "FALSE");
 	}
 
