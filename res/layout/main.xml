@@ -1,34 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
-	android:orientation="vertical">
+	android:orientation="vertical"
+	xmlns:android="http://schemas.android.com/apk/res/android">
 	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"
 		android:text="@string/hello"
 		android:id="@+id/statusBar"
-		android:gravity="center_horizontal"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content" />
+		android:gravity="center_horizontal" android:background="#B1DCFE" android:textColor="#000000"></TextView>
 	<RelativeLayout
 		android:id="@+id/relativeLayout1"
 		android:padding="6dip"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
+
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="fill_parent"
+			android:text="@string/hello"
+			android:id="@+id/statusBar"
+			android:gravity="center_horizontal"
+			android:layout_above="@+id/droneVideoDisplay"
+			android:layout_alignLeft="@+id/droneVideoDisplay"
+			android:layout_alignRight="@+id/droneVideoDisplay"></TextView>
+		<RelativeLayout
+			android:id="@+id/buttonBGLayout"
+			android:layout_height="wrap_content"
+			android:layout_toLeftOf="@+id/droneVideoDisplay"
+			android:layout_width="wrap_content"
+			android:layout_alignBottom="@+id/droneVideoDisplay"
+			android:layout_alignLeft="@+id/connectButton"
+			android:background="#63B8FF"
+			android:layout_alignTop="@+id/droneVideoDisplay"></RelativeLayout>
+		<RelativeLayout
+			android:layout_height="wrap_content"
+			android:layout_toRightOf="@+id/buttonBGLayout"
+			android:id="@+id/relativeLayout2"
+			android:layout_alignTop="@+id/buttonBGLayout"
+			android:background="#4682B2"
+			android:layout_alignBottom="@+id/buttonBGLayout" android:layout_width="fill_parent"></RelativeLayout>
+
 		<ProgressBar
 			android:id="@+id/progressBar1"
 			style="?android:attr/progressBarStyleSmall"
 			android:layout_height="wrap_content"
 			android:visibility="invisible"
 			android:layout_width="wrap_content"
-			android:layout_alignLeft="@+id/connectButton"> </ProgressBar>
+			android:layout_alignLeft="@+id/connectButton">
+		</ProgressBar>
 		<Button
 			android:id="@+id/connectButton"
 			android:layout_width="220dip"
 			android:text="Connect..."
 			android:layout_height="wrap_content"
 			android:layout_below="@+id/progressBar1"
-			
+
 			android:layout_alignParentLeft="true"
 			android:layout_alignWithParentIfMissing="true"></Button>
 		<Button
@@ -65,6 +93,7 @@
 			android:layout_marginLeft="6dip"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"></ImageView>
+
 
 	</RelativeLayout>
 </LinearLayout>

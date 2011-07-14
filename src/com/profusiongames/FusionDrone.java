@@ -64,6 +64,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private Button launchButton;
 	private TextView batteryText;
 	private ImageView videoDisplay;
+	private Button animateButton;
 	/* Components */
 
 	@Override
@@ -74,7 +75,20 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		fDrone = this;
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		getUIComponents();
+		
 	}
+	
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
 	@Override
 	protected void onResume() {
         super.onResume();
@@ -87,8 +101,21 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
     }
 	@Override
     protected void onStop() {
+		super.onStop();
 		sensorManager.unregisterListener(this);
-        super.onStop();
+		try {
+			if(drone != null)
+			{
+				drone.clearImageListeners();
+				drone.clearNavDataListeners();
+				drone.clearStatusChangeListeners();
+				drone.clearStatusChangeListeners();
+				drone.disconnect();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}   
     }
 	
 	
@@ -133,6 +160,17 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		});
 		batteryText = (TextView) findViewById(R.id.batteryStatusText);
 		videoDisplay = (ImageView) findViewById(R.id.droneVideoDisplay);
+		animateButton = (Button) findViewById(R.id.animateButton);
+		animateButton.setOnClickListener(new View.OnClickListener() {
+		public void onClick(View v) {
+			try {
+				if(drone != null)
+					drone.sendVideoOnData();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
 	public static ARDrone getARDrone() {
@@ -145,6 +183,11 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	@Override
 	public void navDataReceived(NavData nd) {
 		//NavData.printState(nd);
+		//Log.v("DRONE", nd.getVisionTags().toString());
+		if(nd.getVisionTags() != null)
+		{
+			Log.v("DRONE", nd.getVisionTags().toString());
+		}
 		batteryLife = nd.getBattery();
 		runOnUiThread(new Runnable() {
 			public void run() {
@@ -158,7 +201,12 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	{
 		(new VideoDisplayer(startX, startY, w, h, rgbArray, offset, scansize)).execute();
 		Log.v("Drone Control", "Frame recieved on FusionDrone   rgbArray.length = " + rgbArray.length + "       width = " + w + " height = " + h);
-		
+		try {
+			drone.playLED(4, 20, 1);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		//final Bitmap cake = Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.RGB_565);
 		//runOnUiThread(new Runnable() {
 		//	public void run() {
@@ -181,6 +229,35 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		
 	}
 
+	
+	/*final Runnable pingDrone = new Runnable() {
+	    public void run() {
+	    	if(!isConnected) return;
+	        try {
+				drone.sendVideoOnData();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	        connectionStartButton.postDelayed(this, 200);
+	        Log.v("DRONE", "pinging drone");
+	    }
+	};*/
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
@@ -244,12 +321,13 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				drone.playLED(1, 10, 4);
 				drone.addNavDataListener(FusionDrone.fDrone);
 				drone.addImageListener(FusionDrone.fDrone);
-				drone.selectVideoChannel(ARDrone.VideoChannel.VERTICAL_ONLY);
-				/*try {
+				drone.selectVideoChannel(ARDrone.VideoChannel.HORIZONTAL_ONLY);
+				try {
+					//drone.sendTagDetectionOnData();
 					drone.sendVideoOnData();
 					//drone.enableAutomaticVideoBitrate();
 				}
-				catch(Exception e) { e.printStackTrace();}*/
+				catch(Exception e) { e.printStackTrace();}
 				/*FusionDrone.this.runOnUiThread(new Runnable() { 
 					public void run() {
 						//FusionDrone.drone.addNavDataListener(FusionDrone.this);
@@ -277,6 +355,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		protected void onPostExecute(Boolean success) {
 			if (success.booleanValue()) {
 				connectionStartButton.setText("Disconnect...");
+				/*connectionStartButton.postDelayed(pingDrone, 200);*/
 				//launchButton.setVisibility(Button.VISIBLE);
 			} else {
 				connectionStartButton.setText("Error 1. Retry?");
@@ -378,6 +457,8 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		@Override
 		protected void onPostExecute(Void param) {
 			//videoDisplay.setImageBitmap(b);
+			Log.v("Drone Control", "THe system memory is : " + Runtime.getRuntime().freeMemory());
+			((BitmapDrawable)videoDisplay.getDrawable()).getBitmap().recycle(); 
 			videoDisplay.setImageDrawable(new BitmapDrawable(b));
 			FusionDrone.queueToShow--;
 			Log.v("Drone Control", "Queue = " + FusionDrone.queueToShow);

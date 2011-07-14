@@ -22,7 +22,6 @@ import com.codeminders.ardrone.commands.PlayAnimationCommand;
 import com.codeminders.ardrone.commands.PlayLEDCommand;
 import com.codeminders.ardrone.commands.QuitCommand;
 import com.codeminders.ardrone.commands.TakeOffCommand;
-import com.profusiongames.FusionDrone;
 
 public class ARDrone {
 	public enum State {
@@ -246,6 +245,7 @@ public class ARDrone {
 	}
 
 	private void changeState(State newstate) throws IOException {
+		Log.v("Drone Control", "Forced to change state");
 		if (newstate == State.ERROR)
 			changeToErrorState(null);
 
@@ -335,7 +335,7 @@ public class ARDrone {
 
 	private void doDisconnect() throws IOException {
 		//ADDDED by Profusion
-		/*stopSendVideoOnData();*/
+		stopSendVideoOnData();
 		
 		if (cmd_queue != null)
 			cmd_queue.add(new QuitCommand());
@@ -534,20 +534,21 @@ public class ARDrone {
 		setConfigOption("general:navdata_demo", "TRUE");
 	}
 	
-	/*//ADDDED by Profusion
+	//ADDDED by Profusion
 	public void sendVideoOnData()throws IOException {
-		//setConfigOption("general:video_enable", "TRUE");
+		setConfigOption("general:video_enable", "TRUE");
 	}
 	//ADDDED by Profusion
 	public void stopSendVideoOnData()throws IOException {
 		setConfigOption("general:video_enable", "FALSE");
-	}*/
+	}
 	
 	public void sendTagDetectionOnData()throws IOException {
-		setConfigOption("general:video_enable", "TRUE");
+		setConfigOption("detect:enemy_type", "3");
+		setConfigOption("detect:detections_select_h", "3");
 	}
 	public void stopTagDetectionOnData()throws IOException {
-		setConfigOption("general:video_enable", "FALSE");
+		setConfigOption("detect:enemy_type", "3");
 	}
 
 	public void sendEmergencySignal() throws IOException {
@@ -582,7 +583,7 @@ public class ARDrone {
 	// Callback used by VideoReciver
 	public void videoFrameReceived(int startX, int startY, int w, int h, int[] rgbArray, int offset, int scansize) {
 		//Log.v(DEBUG, "ARDrone.java: videoFrameRecieved()");
-		FusionDrone.queueToShow++;
+		
 		synchronized (image_listeners) {
 			for (DroneVideoListener l : image_listeners)
 				l.frameReceived(startX, startY, w, h, rgbArray, offset, scansize);

@@ -14,13 +14,15 @@ public final class R {
         public static final int icon=0x7f020000;
     }
     public static final class id {
-        public static final int animateButton=0x7f050005;
-        public static final int batteryStatusText=0x7f050006;
-        public static final int connectButton=0x7f050003;
-        public static final int droneVideoDisplay=0x7f050007;
-        public static final int launchButton=0x7f050004;
-        public static final int progressBar1=0x7f050002;
+        public static final int animateButton=0x7f050008;
+        public static final int batteryStatusText=0x7f050009;
+        public static final int buttonBGLayout=0x7f050003;
+        public static final int connectButton=0x7f050004;
+        public static final int droneVideoDisplay=0x7f050002;
+        public static final int launchButton=0x7f050007;
+        public static final int progressBar1=0x7f050006;
         public static final int relativeLayout1=0x7f050001;
+        public static final int relativeLayout2=0x7f050005;
         public static final int statusBar=0x7f050000;
     }
     public static final class layout {

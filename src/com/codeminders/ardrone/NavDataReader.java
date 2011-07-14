@@ -10,6 +10,8 @@ import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
 
+import android.util.Log;
+
 public class NavDataReader implements Runnable {
 	private static final int BUFSIZE = 4096;
 
@@ -38,11 +40,11 @@ public class NavDataReader implements Runnable {
 		}
 
 		try {
-			if (channel.isConnected()) {
 				channel.socket().disconnect();
 				channel.socket().close();
-			}
+			//}
 			channel.disconnect();
+			Log.v("Drone Control", "dissss");
 			channel.close();
 		} catch (IOException iox) {
 			// Ignore
@@ -58,6 +60,7 @@ public class NavDataReader implements Runnable {
 			while (!done) {
 				selector.select();
 				if (done) {
+					Log.v("Drone Control", "dissssconnnnnnect");
 					disconnect();
 					break;
 				}
