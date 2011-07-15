@@ -113,7 +113,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				Log.v("DRONE", "Clicked Connection button");
 				if (!isConnected) {
 
-					connectionWhirlProgress.setVisibility(ProgressBar.VISIBLE); // visible = true;
+					connectionWhirlProgress.setVisibility(ProgressBar.VISIBLE); 
 					connectionStartButton.setEnabled(false);
 					connectionStartButton.setText("Connecting...");
 					(new DroneStarter()).execute(FusionDrone.drone);
@@ -131,7 +131,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 			public void onClick(View v) {
 				Log.v("DRONE", "Clicked Launch button");
 				if (!isConnected) {
-					//launchButton.setVisibility(Button.INVISIBLE); //just in case a bug makes it visible when not connected
+					//do nothing
 				} else if(isFlying) {
 					try { drone.land(); launchButton.setText("Takeoff"); isFlying = false;} 
 					catch (IOException e) {e.printStackTrace();}
@@ -190,56 +190,11 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//final Bitmap cake = Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.RGB_565);
-		//runOnUiThread(new Runnable() {
-		//	public void run() {
-		//		Log.v("Drone Control", "Frame recieved on FusionDrone   rgbArray.length = " + rgbArray.length + "       width = " + videoDisplay.getWidth());// + "       data = " + Arrays.toString(rgbArray));
-				/*if(videoDisplay.getDrawingCache() != null)
-					videoDisplay.getDrawingCache().setPixels(rgbArray, offset, scansize, startX, startY, w, h);
-				else {
-					Log.v("Control Tower", "frame was recieved but videoDisplay had null drawing cache");*/
-					//videoDisplay.setImageBitmap(Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.RGB_565));
-				//}
-				//videoDisplay.invalidate();
-				
-		//		(new VideoDisplayer(startX, startY, w, h, rgbArray, offset, scansize)).execute();
-				//videoDisplay.setImageBitmap(cake);
-				//FusionDrone.queueToShow--;
-				//Log.v("Drone Control", "Queue = " + queueToShow);
-			//}
-		//});
 		
 		
 	}
 
-	
-	/*final Runnable pingDrone = new Runnable() {
-	    public void run() {
-	    	if(!isConnected) return;
-	        try {
-				drone.sendVideoOnData();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	        connectionStartButton.postDelayed(this, 200);
-	        Log.v("DRONE", "pinging drone");
-	    }
-	};*/
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -266,18 +221,6 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		if( MathUtil.abs(shortY) <  sensorThreshold) shortY = 0;// do nothing
 		if( MathUtil.abs(shortZ) <  sensorThreshold) shortZ = 0;// do nothing
 		Log.v("DRONE", "sensor difference: x: " + shortX + ", y: " + shortY + ", z: " + shortZ);
-
-		
-		
-		
-		/*if(isFlying)
-			try {
-				drone.move(0.0f, 0.0f,0.0f, 0.01f*e.values[0]);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		*/
 	} 
 	
 
@@ -311,12 +254,6 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 					//drone.enableAutomaticVideoBitrate();
 				}
 				catch(Exception e) { e.printStackTrace();}
-				/*FusionDrone.this.runOnUiThread(new Runnable() { 
-					public void run() {
-						//FusionDrone.drone.addNavDataListener(FusionDrone.this);
-					}
-				});*/
-				// connectionStartButton.setText("Connected to ARDrone");
 				Log.v("DRONE", "Connected to ARDrone" + FusionDrone.drone);
 				return true;
 			} catch (Exception e) {
@@ -338,14 +275,12 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		protected void onPostExecute(Boolean success) {
 			if (success.booleanValue()) {
 				connectionStartButton.setText("Disconnect...");
-				/*connectionStartButton.postDelayed(pingDrone, 200);*/
-				//launchButton.setVisibility(Button.VISIBLE);
 			} else {
 				connectionStartButton.setText("Error 1. Retry?");
 			}
 			isConnected = success.booleanValue();
 			connectionStartButton.setEnabled(true);
-			connectionWhirlProgress.setVisibility(4);// invisible
+			connectionWhirlProgress.setVisibility(Button.INVISIBLE);
 		}
 	}
 	
@@ -438,8 +373,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 			return null;
 		}
 		@Override
-		protected void onPostExecute(Void param) {
-			//videoDisplay.setImageBitmap(b);
+		protected void onPostExecute(Void param) {;
 			Log.v("Drone Control", "THe system memory is : " + Runtime.getRuntime().freeMemory());
 			((BitmapDrawable)videoDisplay.getDrawable()).getBitmap().recycle(); 
 			videoDisplay.setImageDrawable(new BitmapDrawable(b));
