@@ -9,7 +9,10 @@
 		android:layout_width="fill_parent"
 		android:text="@string/hello"
 		android:id="@+id/statusBar"
-		android:gravity="center_horizontal" android:background="#B1DCFE" android:textColor="#000000"></TextView>
+		android:gravity="center_horizontal"
+		android:background="#B1DCFE"
+		android:textColor="#000000">
+	</TextView>
 	<RelativeLayout
 		android:id="@+id/relativeLayout1"
 		android:padding="6dip"

@@ -74,6 +74,9 @@
 *
 *  3) Compile com.profusiongames.FusionDrone
 *
+*  4) For future expansion, you can grab a copy of the original Javadrone
+*     source code here: http://code.google.com/p/javadrone/
+*
 *****************************************************************************
 *
 *****************************************************************************

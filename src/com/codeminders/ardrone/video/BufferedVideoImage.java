@@ -19,9 +19,9 @@ import java.nio.ByteBuffer;
 // of this
 // software, even if advised of the possibility of such damage.
 
-// Author : Daniel Schmidt
-// Publishing date : 2010-01-06
-// based on work by : Wilke Jansoone
+// Author : Unknown Guardian (http://www.kongregate.com/accounts/UnknownGuardian)
+// Publishing date : 2011-07-15
+// based on work by : Daniel Schmidt, Wilke Jansoone
 
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -1097,31 +1097,31 @@ public class BufferedVideoImage {
 
 	//contains common code for optimization purposes
 	//private int readStreamData(int count) {		
-	@SuppressWarnings("unused")
+	/*@SuppressWarnings("unused")
 	private uint readStreamData(int count) {		
 		
 		//uint data = new uint(0);
 		int data = 0;
 		//byte[] imageStreamArr = imageStream.array();
 		while (count > (32 - streamFieldBitIndex)) {
-			data = data << (32 - streamFieldBitIndex) | (streamField/*.intValue()*/ >>> streamFieldBitIndex	);//(data.shiftLeft((int) (32 - streamFieldBitIndex)).or(streamField.shiftRight(streamFieldBitIndex)));
+			data = data << (32 - streamFieldBitIndex) | (streamField/// *.intValue()// * / >>> streamFieldBitIndex	);//(data.shiftLeft((int) (32 - streamFieldBitIndex)).or(streamField.shiftRight(streamFieldBitIndex)));
 			count -= 32 - streamFieldBitIndex;
 			
 			
 			//streamField = new uint(imageStream, streamIndex * 4);
-			/*ByteBuffer bb = ByteBuffer.allocate(4);
-			bb.put(imageStreamArr[streamIndex * 4 + 3]);
-			bb.put(imageStreamArr[streamIndex * 4 + 2]);
-			bb.put(imageStreamArr[streamIndex * 4 + 1]);
-			bb.put(imageStreamArr[streamIndex * 4 + 0]);
-			bb.flip();
-			streamField = bb.getInt();*/
+			//ByteBuffer bb = ByteBuffer.allocate(4);
+			//bb.put(imageStreamArr[streamIndex * 4 + 3]);
+			//bb.put(imageStreamArr[streamIndex * 4 + 2]);
+			//bb.put(imageStreamArr[streamIndex * 4 + 1]);
+			//bb.put(imageStreamArr[streamIndex * 4 + 0]);
+			//bb.flip();
+			//streamField = bb.getInt();
 			
-			/*streamField = ((imageStreamArr[streamIndex * 4 + 3] & 0x000000FF) << 8);
-			streamField = (streamField + (imageStreamArr[streamIndex * 4 + 2] & 0x000000FF)) << 8;
-			streamField = (streamField + (imageStreamArr[streamIndex * 4 + 1] & 0x000000FF)) << 8;
-			streamField = (streamField + (imageStreamArr[streamIndex * 4 + 0] & 0x000000FF));
-			*/
+			//streamField = ((imageStreamArr[streamIndex * 4 + 3] & 0x000000FF) << 8);
+			//streamField = (streamField + (imageStreamArr[streamIndex * 4 + 2] & 0x000000FF)) << 8;
+			//streamField = (streamField + (imageStreamArr[streamIndex * 4 + 1] & 0x000000FF)) << 8;
+			//streamField = (streamField + (imageStreamArr[streamIndex * 4 + 0] & 0x000000FF));
+			
 			streamField = ((imageStreamByteArray[streamIndex * 4 + 0] & 0xFF) | ((imageStreamByteArray[streamIndex * 4 + 1] & 0xFF) << 8) | ((imageStreamByteArray[streamIndex * 4 + 2] & 0xFF) << 16) | ((imageStreamByteArray[streamIndex * 4 + 3] & 0xFF) << 24));
 			
 			
@@ -1130,14 +1130,14 @@ public class BufferedVideoImage {
 		}
 
 		if (count > 0) {
-			data = (data << count) | (streamField/*.intValue()*/ >>> (32 - count));//data.shiftLeft(count).or(streamField.shiftRight(32 - count));
+			data = (data << count) | (streamField/ *.intValue()* / >>> (32 - count));//data.shiftLeft(count).or(streamField.shiftRight(32 - count));
 			streamField <<= count;//streamField.shiftLeftEquals(count);
 			streamFieldBitIndex += count;
 		}
 
 		return new uint(data);
 		//return data;
-	}
+	}*/
 	
 	private int readStreamDataInt(int count)
 	{

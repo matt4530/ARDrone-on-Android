@@ -1,6 +1,0 @@
-|==============Error List==============|
-| Error Number			Description    |
-|======================================|
-
-	1					Error on Connect. Could be timeout or null pointer exception.
-	2					Error on Disconnect. Could be timeout or null pointer exception.
