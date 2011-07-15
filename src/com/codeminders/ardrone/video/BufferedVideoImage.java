@@ -111,6 +111,15 @@ public class BufferedVideoImage
 	private ImageSlice imageSlice;
 	private int[] javaPixelData;
 
+	
+	/*
+	 * Convert a stream to an image
+	 * 
+	 * Takes in bytes representing an image and renders the image after decoding the bytes.
+	 * 
+	 * @param ByteBuffer stream
+	 * 		A ByteBuffer full of the bytes that represent the image to be decoded.
+	 */
 	public void addImageStream(ByteBuffer stream)
 	{
 		imageStream = stream;
@@ -118,7 +127,12 @@ public class BufferedVideoImage
 		imageStreamCapacity = imageStream.capacity();
 		processStream();
 	}
-
+	
+	/*
+	 * Adjusts the stream to fix the start of the actual data
+	 * 
+	 * Prepares the stream data for reading the header, by adjusting byte values
+	 */
 	private void alignStreamData()
 	{
 		int alignedLength;
@@ -137,7 +151,16 @@ public class BufferedVideoImage
 			}
 		}
 	}
-
+	
+	/*
+	 * Constructs the image from byte values
+	 * 
+	 * From the blocks in the image, uses the byte data which is converted to rgb
+	 * and applies various transformations, like saturation, to adjust for the
+	 * image creation. See comments above peekStreamData for more information on
+	 * how the image bytes are laid out and decoded then put together to form the 
+	 * image slice.
+	 */
 	private void composeImageSlice()
 	{
 		int u, ug, ub;
@@ -262,6 +285,21 @@ public class BufferedVideoImage
 		}
 	}
 
+	/*
+	 * Decompresses the byte data into a uncompressed format which can be parsed easier
+	 * 
+	 * Decodes the byte stream data by combining the two fields, run fields and level fields
+	 * which are used to compress data.
+	 * 
+	 * @param int[] run
+	 * 		Wrapper for an int. Used to calculate run value
+	 * 
+	 * @param int[] level
+	 * 		Wrapper for an int. Used to calculate run value with a sign
+	 * 
+	 * @param boolean[]last
+	 * 		Wrapper for a boolean. Used to determine if this is the end of the stream or not.
+	 */
 	private void decodeFieldBytes(int[] run, int[] level, boolean[] last)
 	{
 		int streamCode = 0;
@@ -302,8 +340,7 @@ public class BufferedVideoImage
 		if (zeroCount == 24)
 			zeroCount += CLZLUT[streamCode & 0xFF];
 
-		streamCode <<= (zeroCount + 1);// streamCode.shiftLeftEquals(zeroCount +
-										// 1); // - (2) -> shift left to get
+		streamCode <<= (zeroCount + 1); // - (2) -> shift left to get
 		// rid of the coarse value
 		streamLength += zeroCount + 1; // - position bit pointer to keep track
 		// off how many bits to consume later on
@@ -397,6 +434,11 @@ public class BufferedVideoImage
 		readStreamDataInt(streamLength);
 	}
 
+	/*
+	 * Decodes the field bytes within this block.
+	 * 
+	 * Reads the stream 
+	 */
 	private void getBlockBytes(boolean acCoefficientsAvailable)
 	{
 		int[] run = new int[] { 0 };
