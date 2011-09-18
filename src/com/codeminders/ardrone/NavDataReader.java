@@ -57,7 +57,7 @@ public class NavDataReader implements Runnable {
 		try {
 			ByteBuffer inbuf = ByteBuffer.allocate(BUFSIZE);
 			done = false;
-			while (!done) {
+			while (true) {
 				selector.select();
 				if (done) {
 					Log.v("Drone Control", "dissssconnnnnnect");
@@ -66,7 +66,7 @@ public class NavDataReader implements Runnable {
 				}
 				Set readyKeys = selector.selectedKeys();
 				Iterator iterator = readyKeys.iterator();
-				while (iterator.hasNext()) {
+				while (iterator.hasNext() && !done) {
 					SelectionKey key = (SelectionKey) iterator.next();
 					iterator.remove();
 					if (key.isWritable()) {

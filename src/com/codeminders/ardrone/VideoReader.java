@@ -72,7 +72,7 @@ public class VideoReader implements Runnable {
         try {
             ByteBuffer inbuf = ByteBuffer.allocate(BUFSIZE);
             done = false;
-            while (!done) {
+            while (true) {
             	byte[] trigger_bytes = { 0x01, 0x00, 0x00, 0x00 };
                 ByteBuffer trigger_buf = ByteBuffer.allocate(trigger_bytes.length);
                 trigger_buf.put(trigger_bytes);
@@ -87,7 +87,7 @@ public class VideoReader implements Runnable {
 	            }
 	            Set readyKeys = selector.selectedKeys();
 	            Iterator iterator = readyKeys.iterator();
-	            while (iterator.hasNext()) {
+	            while (iterator.hasNext() && !done) {
 	                SelectionKey key = (SelectionKey) iterator.next();
 	                iterator.remove();
 	                //if (key.isWritable()) {
