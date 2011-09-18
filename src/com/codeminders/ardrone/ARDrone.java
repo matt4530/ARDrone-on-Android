@@ -298,6 +298,8 @@ public class ARDrone {
 	 */
 	public void connect() throws IOException {
 		try {
+			changeState(State.CONNECTING);
+			
 			cmd_socket = new DatagramSocket();
 			// control_socket = new Socket(drone_addr, CONTROL_PORT);
 
@@ -313,7 +315,6 @@ public class ARDrone {
 			video_reader_thread = new Thread(video_reader,"Video Reader");
 			video_reader_thread.start();
 
-			changeState(State.CONNECTING);
 
 		} catch (IOException ex) {
 			changeToErrorState(ex);
@@ -454,6 +455,8 @@ public class ARDrone {
 				} else if (state != State.BOOTSTRAP && nd.getMode() == NavData.Mode.BOOTSTRAP) {
 					changeState(State.BOOTSTRAP);
 				} else if (state == State.BOOTSTRAP && nd.getMode() == NavData.Mode.DEMO) {
+					changeState(State.DEMO);
+				} else if (state == State.CONNECTING && nd.getMode() == NavData.Mode.DEMO) {
 					changeState(State.DEMO);
 				}
 
