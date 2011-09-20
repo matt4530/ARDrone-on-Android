@@ -71,6 +71,8 @@ public class VideoReader implements Runnable {
     public void run() {
         try {
             ByteBuffer inbuf = ByteBuffer.allocate(BUFSIZE);
+            int framesTotal = 0;
+            int framesDropped = 0;
             done = false;
             while (true) {
             	byte[] trigger_bytes = { 0x01, 0x00, 0x00, 0x00 };
@@ -100,8 +102,28 @@ public class VideoReader implements Runnable {
 	                /*} else*/ if (key.isReadable()) {
 	                	Log.v("Drone Control", "VideoReader: got data");
 	                    inbuf.clear();
-	                    int len = channel.read(inbuf);
-	                
+	                    int len;
+	                    int len_last = 0;
+	                    int frames = -1;
+	                    
+	                    /* Read as many frames as we can so that latency is reduced */
+	                    do
+	                    {
+	                    	len = len_last;
+	                    	len_last = channel.read(inbuf);
+	                    	frames++;
+	                    }
+	                    while (len_last > 0);
+
+	                    framesTotal += frames;
+
+	                    if (frames > 1)
+	                    {
+	                    	Log.v("VideoReader", "Dropped " + (frames-1) + " frames (total frames " +
+	                    			framesTotal + ", dropped " + framesDropped + ")");
+	                    	framesDropped += frames - 1;
+	                    }
+
 	                    if (len > 0) {
 	                        inbuf.flip();
 	                        FusionDrone.queueToShow++;
