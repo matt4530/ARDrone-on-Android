@@ -111,6 +111,9 @@ public class BufferedVideoImage
 	private ImageSlice imageSlice;
 	private int[] javaPixelData;
 
+	/* Data used by inverseTransform */
+	private int[] workSpace = new int[64];
+	private short[] data = new short[64];
 	
 	/*
 	 * Convert a stream to an image
@@ -513,9 +516,6 @@ public class BufferedVideoImage
 
 	void inverseTransform(int macroBlockIndex, int dataBlockIndex)
 	{
-		int[] workSpace = new int[64];
-		short[] data = new short[64];
-
 		int z1, z2, z3, z4, z5;
 		int tmp0, tmp1, tmp2, tmp3;
 		int tmp10, tmp11, tmp12, tmp13;
