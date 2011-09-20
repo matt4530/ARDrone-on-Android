@@ -100,7 +100,16 @@ public class VideoReader implements Runnable {
 	                /*} else*/ if (key.isReadable()) {
 	                	Log.v("Drone Control", "VideoReader: got data");
 	                    inbuf.clear();
-	                    int len = channel.read(inbuf);
+	                    int len;
+	                    int len_last = 0;
+	                    
+	                    /* Read as many frames as we can so that latency is reduced */
+	                    do
+	                    {
+	                    	len = len_last;
+	                    	len_last = channel.read(inbuf);
+	                    }
+	                    while (len_last > 0);
 	                
 	                    if (len > 0) {
 	                        inbuf.flip();
