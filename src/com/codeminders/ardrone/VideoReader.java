@@ -74,6 +74,7 @@ public class VideoReader implements Runnable {
             int framesTotal = 0;
             int framesDropped = 0;
             done = false;
+            final BufferedVideoImage vi = new BufferedVideoImage();;
             while (true) {
             	byte[] trigger_bytes = { 0x01, 0x00, 0x00, 0x00 };
                 ByteBuffer trigger_buf = ByteBuffer.allocate(trigger_bytes.length);
@@ -127,7 +128,6 @@ public class VideoReader implements Runnable {
 	                    if (len > 0) {
 	                        inbuf.flip();
 	                        FusionDrone.queueToShow++;
-	                        final BufferedVideoImage vi = new BufferedVideoImage();;
 	                        vi.addImageStream(inbuf);
 	                        drone.videoFrameReceived(0, 0, vi.getWidth(), vi.getHeight(), vi.getJavaPixelData(), 0, vi.getWidth());
 	                    }
