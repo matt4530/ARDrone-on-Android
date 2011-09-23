@@ -115,6 +115,11 @@ public class BufferedVideoImage
 	private int[] workSpace = new int[64];
 	private short[] data = new short[64];
 	
+	/* Data used by decodeFieldBytes */
+	private int run;
+	private int level;
+	private boolean last;
+	
 	/*
 	 * Convert a stream to an image
 	 * 
@@ -303,7 +308,7 @@ public class BufferedVideoImage
 	 * @param boolean[]last
 	 * 		Wrapper for a boolean. Used to determine if this is the end of the stream or not.
 	 */
-	private void decodeFieldBytes(int[] run, int[] level, boolean[] last)
+	private void decodeFieldBytes()
 	{
 		int streamCode = 0;
 
@@ -363,11 +368,11 @@ public class BufferedVideoImage
 			streamLength += zeroCount - 1;	// - position bit pointer to keep tack
 											// off how many bits to consume
 											// later on the stream
-			run[0] = temp + (1 << (zeroCount - 1)); // - (3) -> calculate run
+			run = temp + (1 << (zeroCount - 1)); // - (3) -> calculate run
 													// value
 		} else
 		{
-			run[0] = zeroCount;
+			run = zeroCount;
 		}
 
 		// Determine non zero value. (a.k.a 'level' field info)
@@ -399,8 +404,8 @@ public class BufferedVideoImage
 			// If coarse value is 01 according to the Huffman dictionary this
 			// means EOB, so there is
 			// no run and level and we indicate this by setting last to true;
-			run[0] = 0;
-			last[0] = true;
+			run = 0;
+			last = true;
 		} else
 		{
 			if (zeroCount == 0)
@@ -429,9 +434,9 @@ public class BufferedVideoImage
 				// value without sign
 			}
 
-			level[0] = (sign == 1) ? -temp : temp; // - (3) -> calculate run
+			level = (sign == 1) ? -temp : temp; // - (3) -> calculate run
 			// value with sign
-			last[0] = false;
+			last = false;
 		}
 
 		readStreamDataInt(streamLength);
@@ -444,11 +449,8 @@ public class BufferedVideoImage
 	 */
 	private void getBlockBytes(boolean acCoefficientsAvailable)
 	{
-		int[] run = new int[] { 0 };
-		int[] level = new int[] { 0 };
 		int zigZagPosition = 0;
 		int matrixPosition = 0;
-		boolean[] last = new boolean[] { false };
 
 		for (int i = 0; i < dataBlockBuffer.length; i++)
 			dataBlockBuffer[i] = 0;
@@ -461,15 +463,15 @@ public class BufferedVideoImage
 
 			if (acCoefficientsAvailable)
 			{
-				decodeFieldBytes(run, level, last);
+				decodeFieldBytes();
 
-				while (!last[0])
+				while (!last)
 				{
-					zigZagPosition += run[0] + 1;
+					zigZagPosition += run + 1;
 					matrixPosition = ZIGZAG_POSITIONS[zigZagPosition];
-					level[0] *= QUANTIZER_VALUES[matrixPosition];
-					dataBlockBuffer[matrixPosition] = (short) level[0];
-					decodeFieldBytes(run, level, last);
+					level *= QUANTIZER_VALUES[matrixPosition];
+					dataBlockBuffer[matrixPosition] = (short) level;
+					decodeFieldBytes();
 				}
 			}
 		} else
