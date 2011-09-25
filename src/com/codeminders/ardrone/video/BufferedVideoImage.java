@@ -251,10 +251,11 @@ public class BufferedVideoImage
 								b = 0;
 							} else
 							{
-								x >>= 11;
-								b = (x > 0x1F) ? 0x1F : x;
+								x >>= 9;
+								b = (x > 0x7F) ? 0x7F : x;
 							}
-							javaPixelData[dataIndex1 + pixelDataQuadrantOffsets[quadrant] + deltaIndex] = ((r << 18) | (g << 9) | b << 2);
+							javaPixelData[dataIndex1 + pixelDataQuadrantOffsets[quadrant] + deltaIndex] = ((r << 18) | (g << 9) | b);
+							
 							x = lumaElementValue2 + vr;
 							if (x < 0)
 							{
@@ -279,10 +280,10 @@ public class BufferedVideoImage
 								b = 0;
 							} else
 							{
-								x >>= 11;
-								b = (x > 0x1F) ? 0x1F : x;
+								x >>= 9;
+								b = (x > 0x7F) ? 0x7F : x;
 							}
-							javaPixelData[dataIndex2 + pixelDataQuadrantOffsets[quadrant] + deltaIndex/* index2 */] = ((r << 18) | (g << 9) | b << 2);// pixelData[index2].intValue();
+							javaPixelData[dataIndex2 + pixelDataQuadrantOffsets[quadrant] + deltaIndex] = ((r << 18) | (g << 9) | b);
 						}
 					}
 				}
