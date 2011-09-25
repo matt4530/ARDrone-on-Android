@@ -311,11 +311,9 @@ public class BufferedVideoImage
 	private void decodeFieldBytes()
 	{
 		int streamCode;
-
 		int streamLength;
-
 		int zeroCount;
-		int temp = 0;
+		int temp;
 		int sign;
 
 		// Use the RLE and Huffman dictionaries to understand this code
@@ -354,30 +352,34 @@ public class BufferedVideoImage
 			}
 		}
 
-		streamCode <<= (zeroCount + 1); // - (2) -> shift left to get
-		// rid of the coarse value
-		streamLength = zeroCount + 1; // - position bit pointer to keep track
-		// off how many bits to consume later on
-		// the stream.
-
 		if (zeroCount > 1)
 		{
-			temp = streamCode >>> (32 - (zeroCount - 1));
+			temp = (streamCode << (zeroCount + 1)) >>> (32 - (zeroCount - 1));
 			// (2)
 			// ->
 			// shift right to determine the additional bits (number of
 			// additional bits is zerocount -1)
-			streamCode <<= (zeroCount - 1);	// - shift all of the run bits out
+			
+			// NOTE: earlier operations on streamCode and streamLength have been
+			// included in operations below, comments may be inaccurate
+			
+			streamCode <<= 2*zeroCount;	// - shift all of the run bits out
 											// of the way so the first bit
 											// points to the first bit of the
 											// level field
-			streamLength += zeroCount - 1;	// - position bit pointer to keep tack
+			streamLength = 2*zeroCount;	// - position bit pointer to keep tack
 											// off how many bits to consume
 											// later on the stream
 			run = temp + (1 << (zeroCount - 1)); // - (3) -> calculate run
 													// value
 		} else
 		{
+			streamCode <<= (zeroCount + 1); // - (2) -> shift left to get
+			// rid of the coarse value
+			streamLength = zeroCount + 1; // - position bit pointer to keep track
+			// off how many bits to consume later on
+			// the stream.
+
 			run = zeroCount;
 		}
 
@@ -406,44 +408,50 @@ public class BufferedVideoImage
 			}
 		}
 
-		streamCode <<= (zeroCount + 1);// - (1)
-		streamLength += zeroCount + 1; // - position bit pointer to keep track
-		// off how many bits to consume later on the stream
-
 		if (zeroCount == 1)
 		{
+			// NOTE: earlier operations on streamCode and streamLength have been
+			// included in operations below, comments may be inaccurate
+			
+			streamCode <<= 2;	// - (1)
+			streamLength += 2;	// - position bit pointer to keep track
+								// off how many bits to consume later on the stream
+
 			// If coarse value is 01 according to the Huffman dictionary this
-			// means EOB, so there is
-			// no run and level and we indicate this by setting last to true;
-			run = 0;
+			// means EOB, so there is no run and level and we indicate this 
+			// by setting last to true (run and level do not need any clearing 
+			// here because they are ignored)
 			last = true;
 		} else
 		{
 			if (zeroCount == 0)
 			{
-				zeroCount = 1;
-				temp = 1;
+				// NOTE: earlier operations on streamCode and streamLength have been
+				// included in operations below, comments may be inaccurate
+				
+				streamLength += 2;						// - position bit pointer to keep track
+														// off how many bits to consume later on the stream
+				streamCode = (streamCode << 1) >>> 31;	// - (2) -> shift right
+				
+				temp = (streamCode >>> 1) + 1;			// take into account that last bit is sign, 
+														// so shift it out of the way
+			}
+			else
+			{
+				// NOTE: earlier operations on streamCode and streamLength have been
+				// included in operations below, comments may be inaccurate
+				
+				streamLength += 2*zeroCount + 1;	// - position bit pointer to keep track
+													// off how many bits to consume later on the stream
+				streamCode = (streamCode << (zeroCount + 1)) >>> (32 - zeroCount); // - (2) -> shift right
+
+				temp = streamCode >>> 1;				// take into account that last bit is sign,
+														// so shift it out of the way
+				temp += (int) (1 << (zeroCount - 1));	// - (3) -> calculate run value without sign
 			}
 
-			streamLength += zeroCount;// - position bit pointer to keep track
-			// off how many bits to consume later on the stream
-			streamCode >>>= (32 - zeroCount); // - (2) -> shift right
-			// to determine the additional bits (number of additional bits is
-			// zerocount)
 			// sign = (sbyte)(streamCode & 1); // determine sign, last bit is sign
 			sign = streamCode & 1; // determine sign, last bit is sign
-
-			if (zeroCount != 0)
-			{
-				// temp = (sbyte)(streamCode >> 1); // take into account that
-				// last bit is sign, so shift it out of the way
-				// temp += (sbyte)(1 << (zeroCount - 1)); // - (3) -> calculate
-				// run value without sign
-				temp = streamCode >>> 1; // take into
-				// account that last bit is sign, so shift it out of the way
-				temp += (int) (1 << (zeroCount - 1)); // - (3) -> calculate run
-				// value without sign
-			}
 
 			level = (sign == 1) ? -temp : temp; // - (3) -> calculate run
 			// value with sign
