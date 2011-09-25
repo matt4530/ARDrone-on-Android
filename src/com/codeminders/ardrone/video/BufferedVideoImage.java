@@ -113,7 +113,6 @@ public class BufferedVideoImage
 
 	/* Data used by inverseTransform */
 	private int[] workSpace = new int[64];
-	private short[] data = new short[64];
 	
 	/* Data used by decodeFieldBytes */
 	private int run;
@@ -559,6 +558,8 @@ public class BufferedVideoImage
 		int tmp10, tmp11, tmp12, tmp13;
 
 		int pointer;
+		
+		short[] blockArray = imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex];
 
 		for (pointer = 0; pointer < 8; pointer++)
 		{
@@ -673,17 +674,16 @@ public class BufferedVideoImage
 			tmp1 = (tmp1 * FIX_2_053119869) + z2 + z4;
 			tmp2 = (tmp2 * FIX_3_072711026) + z2 + z3;
 			tmp3 = (tmp3 * FIX_1_501321110) + z1 + z4;
-
-			data[pointer] = (short) ((tmp10 + tmp3) >> F3);
-			data[pointer + 1] = (short) ((tmp11 + tmp2) >> F3);
-			data[pointer + 2] = (short) ((tmp12 + tmp1) >> F3);
-			data[pointer + 3] = (short) ((tmp13 + tmp0) >> F3);
-			data[pointer + 4] = (short) ((tmp13 - tmp0) >> F3);
-			data[pointer + 5] = (short) ((tmp12 - tmp1) >> F3);
-			data[pointer + 6] = (short) ((tmp11 - tmp2) >> F3);
-			data[pointer + 7] = (short) ((tmp10 - tmp3) >> F3);
+			
+			blockArray[pointer] = (short) ((tmp10 + tmp3) >> F3);
+			blockArray[pointer + 1] = (short) ((tmp11 + tmp2) >> F3);
+			blockArray[pointer + 2] = (short) ((tmp12 + tmp1) >> F3);
+			blockArray[pointer + 3] = (short) ((tmp13 + tmp0) >> F3);
+			blockArray[pointer + 4] = (short) ((tmp13 - tmp0) >> F3);
+			blockArray[pointer + 5] = (short) ((tmp12 - tmp1) >> F3);
+			blockArray[pointer + 6] = (short) ((tmp11 - tmp2) >> F3);
+			blockArray[pointer + 7] = (short) ((tmp10 - tmp3) >> F3);
 		}
-		System.arraycopy(data, 0, imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex], 0, data.length);
 	}
 
 	// Blockline:
