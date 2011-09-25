@@ -101,7 +101,7 @@ public class VideoReader implements Runnable {
 	                    channel.write(trigger_buf);*/
 	                    //channel.register(selector, SelectionKey.OP_READ);
 	                /*} else*/ if (key.isReadable()) {
-	                	Log.v("Drone Control", "VideoReader: got data");
+	                	//Log.v("Drone Control", "VideoReader: got data");
 	                    inbuf.clear();
 	                    int len;
 	                    int len_last = 0;
