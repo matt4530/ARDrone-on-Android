@@ -326,7 +326,24 @@ public class BufferedVideoImage
 		// can be negative or positive.
 		// First we extract the run field info and then the level field info.
 
-		streamCode = peekStreamData(imageStream, 32);
+		// NOTE: explicit inline expansion done here; simplified quite a bit
+		//streamCode = peekStreamData(imageStream, 32);
+		
+		if ((streamFieldBitIndex > 0) && streamIndex < (imageStreamCapacity >> 2))
+		{
+			temp =	((imageStreamByteArray[streamIndex * 4 + 0] & 0xFF) | 
+					((imageStreamByteArray[streamIndex * 4 + 1] & 0xFF) << 8) | 
+					((imageStreamByteArray[streamIndex * 4 + 2] & 0xFF) << 16) | 
+					((imageStreamByteArray[streamIndex * 4 + 3] & 0xFF) << 24));
+
+			streamCode =	((streamField >>> streamFieldBitIndex) << streamFieldBitIndex) | 
+							(temp >>> (32 - streamFieldBitIndex));			
+		}
+		else
+		{
+			streamCode = streamField;
+		}
+		
 		// Determine number of consecutive zeros in zig zag. (a.k.a
 		// 'run' field info)
 
@@ -825,6 +842,7 @@ public class BufferedVideoImage
 	// (blockCount)
 
 	// contains common code for optimization purposes
+	/*
 	private int peekStreamData(ByteBuffer stream, int count)
 	{
 		int data = 0;
@@ -841,7 +859,7 @@ public class BufferedVideoImage
 			data = (data << count) | (stream_field >>> (32 - count));
 		return data;
 	}
-
+	 */
 	private void processStream()
 	{
 		boolean blockY0HasAcComponents = false;
