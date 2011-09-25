@@ -209,6 +209,7 @@ public class BufferedVideoImage
 				{
 					for (int quadrant = 0; quadrant < 4; quadrant++)
 					{
+						int uvg;
 						int chromaIndex = chromaOffset + CROMA_QUADRANT_OFFSETS[quadrant] + horizontalStep;
 						chromaBlueValue = dbArr[4][chromaIndex];
 						chromaRedValue = dbArr[5][chromaIndex];
@@ -222,6 +223,8 @@ public class BufferedVideoImage
 						vg = 183 * v;
 						vr = 359 * v;
 
+						uvg = ug + vg;
+						
 						for (int pixel = 0; pixel < 2; pixel++)
 						{
 							int deltaIndex = 2 * horizontalStep + pixel;
@@ -233,17 +236,17 @@ public class BufferedVideoImage
 								r = 0;
 							} else
 							{
-								x >>= 11;
-								r = (x > 0x1F) ? 0x1F : x;
+								x >>= 8;
+								r = (x > 0xFF) ? 0xFF : x;
 							}
-							x = lumaElementValue1 - ug - vg;
+							x = lumaElementValue1 - uvg;
 							if (x < 0)
 							{
 								g = 0;
 							} else
 							{
-								x >>= 10;
-								g = x > 0x3F ? 0x3F : x;
+								x >>= 8;
+								g = (x > 0xFF) ? 0xFF : x;
 							}
 							x = lumaElementValue1 + ub;
 							if (x < 0)
@@ -251,10 +254,10 @@ public class BufferedVideoImage
 								b = 0;
 							} else
 							{
-								x >>= 9;
-								b = (x > 0x7F) ? 0x7F : x;
+								x >>= 8;
+								b = (x > 0xFF) ? 0xFF : x;
 							}
-							javaPixelData[dataIndex1 + pixelDataQuadrantOffsets[quadrant] + deltaIndex] = ((r << 18) | (g << 9) | b);
+							javaPixelData[dataIndex1 + pixelDataQuadrantOffsets[quadrant] + deltaIndex] = ((r << 16) | (g << 8) | b);
 							
 							x = lumaElementValue2 + vr;
 							if (x < 0)
@@ -262,17 +265,17 @@ public class BufferedVideoImage
 								r = 0;
 							} else
 							{
-								x >>= 11;
-								r = (x > 0x1F) ? 0x1F : x;
+								x >>= 8;
+								r = (x > 0xFF) ? 0xFF : x;
 							}
-							x = lumaElementValue2 - ug - vg;
+							x = lumaElementValue2 - uvg;
 							if (x < 0)
 							{
 								g = 0;
 							} else
 							{
-								x >>= 10;
-								g = x > 0x3F ? 0x3F : x;
+								x >>= 8;
+								g = (x > 0xFF) ? 0xFF : x;
 							}
 							x = lumaElementValue2 + ub;
 							if (x < 0)
@@ -280,10 +283,10 @@ public class BufferedVideoImage
 								b = 0;
 							} else
 							{
-								x >>= 9;
-								b = (x > 0x7F) ? 0x7F : x;
+								x >>= 8;
+								b = (x > 0xFF) ? 0xFF : x;
 							}
-							javaPixelData[dataIndex2 + pixelDataQuadrantOffsets[quadrant] + deltaIndex] = ((r << 18) | (g << 9) | b);
+							javaPixelData[dataIndex2 + pixelDataQuadrantOffsets[quadrant] + deltaIndex] = ((r << 16) | (g << 8) | b);
 						}
 					}
 				}
