@@ -310,13 +310,13 @@ public class BufferedVideoImage
 	 */
 	private void decodeFieldBytes()
 	{
-		int streamCode = 0;
+		int streamCode;
 
-		int streamLength = 0;
+		int streamLength;
 
-		int zeroCount = 0;
+		int zeroCount;
 		int temp = 0;
-		int sign = 0;
+		int sign;
 
 		// Use the RLE and Huffman dictionaries to understand this code
 		// fragment. You can find
@@ -342,15 +342,21 @@ public class BufferedVideoImage
 
 		zeroCount = CLZLUT[streamCode >>> 24];
 		if (zeroCount == 8)
+		{
 			zeroCount += CLZLUT[(streamCode >>> 16) & 0xFF];
-		if (zeroCount == 16)
-			zeroCount += CLZLUT[(streamCode >>> 8) & 0xFF];
-		if (zeroCount == 24)
-			zeroCount += CLZLUT[streamCode & 0xFF];
+			if (zeroCount == 16)
+			{
+				zeroCount += CLZLUT[(streamCode >>> 8) & 0xFF];
+				if (zeroCount == 24)
+				{
+					zeroCount += CLZLUT[streamCode & 0xFF];
+				}
+			}
+		}
 
 		streamCode <<= (zeroCount + 1); // - (2) -> shift left to get
 		// rid of the coarse value
-		streamLength += zeroCount + 1; // - position bit pointer to keep track
+		streamLength = zeroCount + 1; // - position bit pointer to keep track
 		// off how many bits to consume later on
 		// the stream.
 
@@ -386,14 +392,19 @@ public class BufferedVideoImage
 		// 3 - Calculate value of run, for coarse value 00001 this is (xxx) + 8,
 		// multiply by sign
 
-		zeroCount = 0;
-		zeroCount += CLZLUT[streamCode >>> 24];
+		zeroCount = CLZLUT[streamCode >>> 24];
 		if (zeroCount == 8)
+		{
 			zeroCount += CLZLUT[(streamCode >>> 16) & 0xFF];
-		if (zeroCount == 16)
-			zeroCount += CLZLUT[(streamCode >>> 8) & 0xFF];
-		if (zeroCount == 24)
-			zeroCount += CLZLUT[streamCode & 0xFF];
+			if (zeroCount == 16)
+			{
+				zeroCount += CLZLUT[(streamCode >>> 8) & 0xFF];
+				if (zeroCount == 24)
+				{
+					zeroCount += CLZLUT[streamCode & 0xFF];
+				}
+			}
+		}
 
 		streamCode <<= (zeroCount + 1);// - (1)
 		streamLength += zeroCount + 1; // - position bit pointer to keep track
