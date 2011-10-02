@@ -113,7 +113,6 @@ public class BufferedVideoImage
 
 	/* Data used by inverseTransform */
 	private int[] workSpace = new int[64];
-	private short[] data = new short[64];
 	
 	/* Data used by decodeFieldBytes */
 	private int run;
@@ -210,6 +209,7 @@ public class BufferedVideoImage
 				{
 					for (int quadrant = 0; quadrant < 4; quadrant++)
 					{
+						int uvg;
 						int chromaIndex = chromaOffset + CROMA_QUADRANT_OFFSETS[quadrant] + horizontalStep;
 						chromaBlueValue = dbArr[4][chromaIndex];
 						chromaRedValue = dbArr[5][chromaIndex];
@@ -223,6 +223,8 @@ public class BufferedVideoImage
 						vg = 183 * v;
 						vr = 359 * v;
 
+						uvg = ug + vg;
+						
 						for (int pixel = 0; pixel < 2; pixel++)
 						{
 							int deltaIndex = 2 * horizontalStep + pixel;
@@ -234,17 +236,17 @@ public class BufferedVideoImage
 								r = 0;
 							} else
 							{
-								x >>= 11;
-								r = (x > 0x1F) ? 0x1F : x;
+								x >>= 8;
+								r = (x > 0xFF) ? 0xFF : x;
 							}
-							x = lumaElementValue1 - ug - vg;
+							x = lumaElementValue1 - uvg;
 							if (x < 0)
 							{
 								g = 0;
 							} else
 							{
-								x >>= 10;
-								g = x > 0x3F ? 0x3F : x;
+								x >>= 8;
+								g = (x > 0xFF) ? 0xFF : x;
 							}
 							x = lumaElementValue1 + ub;
 							if (x < 0)
@@ -252,27 +254,28 @@ public class BufferedVideoImage
 								b = 0;
 							} else
 							{
-								x >>= 11;
-								b = (x > 0x1F) ? 0x1F : x;
+								x >>= 8;
+								b = (x > 0xFF) ? 0xFF : x;
 							}
-							javaPixelData[dataIndex1 + pixelDataQuadrantOffsets[quadrant] + deltaIndex] = ((r << 18) | (g << 9) | b << 2);
+							javaPixelData[dataIndex1 + pixelDataQuadrantOffsets[quadrant] + deltaIndex] = ((r << 16) | (g << 8) | b);
+							
 							x = lumaElementValue2 + vr;
 							if (x < 0)
 							{
 								r = 0;
 							} else
 							{
-								x >>= 11;
-								r = (x > 0x1F) ? 0x1F : x;
+								x >>= 8;
+								r = (x > 0xFF) ? 0xFF : x;
 							}
-							x = lumaElementValue2 - ug - vg;
+							x = lumaElementValue2 - uvg;
 							if (x < 0)
 							{
 								g = 0;
 							} else
 							{
-								x >>= 10;
-								g = x > 0x3F ? 0x3F : x;
+								x >>= 8;
+								g = (x > 0xFF) ? 0xFF : x;
 							}
 							x = lumaElementValue2 + ub;
 							if (x < 0)
@@ -280,10 +283,10 @@ public class BufferedVideoImage
 								b = 0;
 							} else
 							{
-								x >>= 11;
-								b = (x > 0x1F) ? 0x1F : x;
+								x >>= 8;
+								b = (x > 0xFF) ? 0xFF : x;
 							}
-							javaPixelData[dataIndex2 + pixelDataQuadrantOffsets[quadrant] + deltaIndex/* index2 */] = ((r << 18) | (g << 9) | b << 2);// pixelData[index2].intValue();
+							javaPixelData[dataIndex2 + pixelDataQuadrantOffsets[quadrant] + deltaIndex] = ((r << 16) | (g << 8) | b);
 						}
 					}
 				}
@@ -310,13 +313,11 @@ public class BufferedVideoImage
 	 */
 	private void decodeFieldBytes()
 	{
-		int streamCode = 0;
-
-		int streamLength = 0;
-
-		int zeroCount = 0;
-		int temp = 0;
-		int sign = 0;
+		int streamCode;
+		int streamLength;
+		int zeroCount;
+		int temp;
+		int sign;
 
 		// Use the RLE and Huffman dictionaries to understand this code
 		// fragment. You can find
@@ -328,7 +329,24 @@ public class BufferedVideoImage
 		// can be negative or positive.
 		// First we extract the run field info and then the level field info.
 
-		streamCode = peekStreamData(imageStream, 32);
+		// NOTE: explicit inline expansion done here; simplified quite a bit
+		//streamCode = peekStreamData(imageStream, 32);
+		
+		if ((streamFieldBitIndex > 0) && streamIndex < (imageStreamCapacity >> 2))
+		{
+			temp =	((imageStreamByteArray[streamIndex * 4 + 0] & 0xFF) | 
+					((imageStreamByteArray[streamIndex * 4 + 1] & 0xFF) << 8) | 
+					((imageStreamByteArray[streamIndex * 4 + 2] & 0xFF) << 16) | 
+					((imageStreamByteArray[streamIndex * 4 + 3] & 0xFF) << 24));
+
+			streamCode =	((streamField >>> streamFieldBitIndex) << streamFieldBitIndex) | 
+							(temp >>> (32 - streamFieldBitIndex));			
+		}
+		else
+		{
+			streamCode = streamField;
+		}
+		
 		// Determine number of consecutive zeros in zig zag. (a.k.a
 		// 'run' field info)
 
@@ -342,36 +360,46 @@ public class BufferedVideoImage
 
 		zeroCount = CLZLUT[streamCode >>> 24];
 		if (zeroCount == 8)
+		{
 			zeroCount += CLZLUT[(streamCode >>> 16) & 0xFF];
-		if (zeroCount == 16)
-			zeroCount += CLZLUT[(streamCode >>> 8) & 0xFF];
-		if (zeroCount == 24)
-			zeroCount += CLZLUT[streamCode & 0xFF];
-
-		streamCode <<= (zeroCount + 1); // - (2) -> shift left to get
-		// rid of the coarse value
-		streamLength += zeroCount + 1; // - position bit pointer to keep track
-		// off how many bits to consume later on
-		// the stream.
+			if (zeroCount == 16)
+			{
+				zeroCount += CLZLUT[(streamCode >>> 8) & 0xFF];
+				if (zeroCount == 24)
+				{
+					zeroCount += CLZLUT[streamCode & 0xFF];
+				}
+			}
+		}
 
 		if (zeroCount > 1)
 		{
-			temp = streamCode >>> (32 - (zeroCount - 1));
+			temp = (streamCode << (zeroCount + 1)) >>> (32 - (zeroCount - 1));
 			// (2)
 			// ->
 			// shift right to determine the additional bits (number of
 			// additional bits is zerocount -1)
-			streamCode <<= (zeroCount - 1);	// - shift all of the run bits out
+			
+			// NOTE: earlier operations on streamCode and streamLength have been
+			// included in operations below, comments may be inaccurate
+			
+			streamCode <<= 2*zeroCount;	// - shift all of the run bits out
 											// of the way so the first bit
 											// points to the first bit of the
 											// level field
-			streamLength += zeroCount - 1;	// - position bit pointer to keep tack
+			streamLength = 2*zeroCount;	// - position bit pointer to keep tack
 											// off how many bits to consume
 											// later on the stream
 			run = temp + (1 << (zeroCount - 1)); // - (3) -> calculate run
 													// value
 		} else
 		{
+			streamCode <<= (zeroCount + 1); // - (2) -> shift left to get
+			// rid of the coarse value
+			streamLength = zeroCount + 1; // - position bit pointer to keep track
+			// off how many bits to consume later on
+			// the stream.
+
 			run = zeroCount;
 		}
 
@@ -386,53 +414,64 @@ public class BufferedVideoImage
 		// 3 - Calculate value of run, for coarse value 00001 this is (xxx) + 8,
 		// multiply by sign
 
-		zeroCount = 0;
-		zeroCount += CLZLUT[streamCode >>> 24];
+		zeroCount = CLZLUT[streamCode >>> 24];
 		if (zeroCount == 8)
+		{
 			zeroCount += CLZLUT[(streamCode >>> 16) & 0xFF];
-		if (zeroCount == 16)
-			zeroCount += CLZLUT[(streamCode >>> 8) & 0xFF];
-		if (zeroCount == 24)
-			zeroCount += CLZLUT[streamCode & 0xFF];
-
-		streamCode <<= (zeroCount + 1);// - (1)
-		streamLength += zeroCount + 1; // - position bit pointer to keep track
-		// off how many bits to consume later on the stream
+			if (zeroCount == 16)
+			{
+				zeroCount += CLZLUT[(streamCode >>> 8) & 0xFF];
+				if (zeroCount == 24)
+				{
+					zeroCount += CLZLUT[streamCode & 0xFF];
+				}
+			}
+		}
 
 		if (zeroCount == 1)
 		{
+			// NOTE: earlier operations on streamCode and streamLength have been
+			// included in operations below, comments may be inaccurate
+			
+			streamCode <<= 2;	// - (1)
+			streamLength += 2;	// - position bit pointer to keep track
+								// off how many bits to consume later on the stream
+
 			// If coarse value is 01 according to the Huffman dictionary this
-			// means EOB, so there is
-			// no run and level and we indicate this by setting last to true;
-			run = 0;
+			// means EOB, so there is no run and level and we indicate this 
+			// by setting last to true (run and level do not need any clearing 
+			// here because they are ignored)
 			last = true;
 		} else
 		{
 			if (zeroCount == 0)
 			{
-				zeroCount = 1;
-				temp = 1;
+				// NOTE: earlier operations on streamCode and streamLength have been
+				// included in operations below, comments may be inaccurate
+				
+				streamLength += 2;						// - position bit pointer to keep track
+														// off how many bits to consume later on the stream
+				streamCode = (streamCode << 1) >>> 31;	// - (2) -> shift right
+				
+				temp = (streamCode >>> 1) + 1;			// take into account that last bit is sign, 
+														// so shift it out of the way
+			}
+			else
+			{
+				// NOTE: earlier operations on streamCode and streamLength have been
+				// included in operations below, comments may be inaccurate
+				
+				streamLength += 2*zeroCount + 1;	// - position bit pointer to keep track
+													// off how many bits to consume later on the stream
+				streamCode = (streamCode << (zeroCount + 1)) >>> (32 - zeroCount); // - (2) -> shift right
+
+				temp = streamCode >>> 1;				// take into account that last bit is sign,
+														// so shift it out of the way
+				temp += (int) (1 << (zeroCount - 1));	// - (3) -> calculate run value without sign
 			}
 
-			streamLength += zeroCount;// - position bit pointer to keep track
-			// off how many bits to consume later on the stream
-			streamCode >>>= (32 - zeroCount); // - (2) -> shift right
-			// to determine the additional bits (number of additional bits is
-			// zerocount)
 			// sign = (sbyte)(streamCode & 1); // determine sign, last bit is sign
 			sign = streamCode & 1; // determine sign, last bit is sign
-
-			if (zeroCount != 0)
-			{
-				// temp = (sbyte)(streamCode >> 1); // take into account that
-				// last bit is sign, so shift it out of the way
-				// temp += (sbyte)(1 << (zeroCount - 1)); // - (3) -> calculate
-				// run value without sign
-				temp = streamCode >>> 1; // take into
-				// account that last bit is sign, so shift it out of the way
-				temp += (int) (1 << (zeroCount - 1)); // - (3) -> calculate run
-				// value without sign
-			}
 
 			level = (sign == 1) ? -temp : temp; // - (3) -> calculate run
 			// value with sign
@@ -523,6 +562,8 @@ public class BufferedVideoImage
 		int tmp10, tmp11, tmp12, tmp13;
 
 		int pointer;
+		
+		short[] blockArray = imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex];
 
 		for (pointer = 0; pointer < 8; pointer++)
 		{
@@ -637,17 +678,16 @@ public class BufferedVideoImage
 			tmp1 = (tmp1 * FIX_2_053119869) + z2 + z4;
 			tmp2 = (tmp2 * FIX_3_072711026) + z2 + z3;
 			tmp3 = (tmp3 * FIX_1_501321110) + z1 + z4;
-
-			data[pointer] = (short) ((tmp10 + tmp3) >> F3);
-			data[pointer + 1] = (short) ((tmp11 + tmp2) >> F3);
-			data[pointer + 2] = (short) ((tmp12 + tmp1) >> F3);
-			data[pointer + 3] = (short) ((tmp13 + tmp0) >> F3);
-			data[pointer + 4] = (short) ((tmp13 - tmp0) >> F3);
-			data[pointer + 5] = (short) ((tmp12 - tmp1) >> F3);
-			data[pointer + 6] = (short) ((tmp11 - tmp2) >> F3);
-			data[pointer + 7] = (short) ((tmp10 - tmp3) >> F3);
+			
+			blockArray[pointer] = (short) ((tmp10 + tmp3) >> F3);
+			blockArray[pointer + 1] = (short) ((tmp11 + tmp2) >> F3);
+			blockArray[pointer + 2] = (short) ((tmp12 + tmp1) >> F3);
+			blockArray[pointer + 3] = (short) ((tmp13 + tmp0) >> F3);
+			blockArray[pointer + 4] = (short) ((tmp13 - tmp0) >> F3);
+			blockArray[pointer + 5] = (short) ((tmp12 - tmp1) >> F3);
+			blockArray[pointer + 6] = (short) ((tmp11 - tmp2) >> F3);
+			blockArray[pointer + 7] = (short) ((tmp10 - tmp3) >> F3);
 		}
-		System.arraycopy(data, 0, imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex], 0, data.length);
 	}
 
 	// Blockline:
@@ -806,6 +846,7 @@ public class BufferedVideoImage
 	// (blockCount)
 
 	// contains common code for optimization purposes
+	/*
 	private int peekStreamData(ByteBuffer stream, int count)
 	{
 		int data = 0;
@@ -822,7 +863,7 @@ public class BufferedVideoImage
 			data = (data << count) | (stream_field >>> (32 - count));
 		return data;
 	}
-
+	 */
 	private void processStream()
 	{
 		boolean blockY0HasAcComponents = false;

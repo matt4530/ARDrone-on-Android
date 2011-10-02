@@ -29,7 +29,6 @@ public class NavDataReader implements Runnable {
 		channel.connect(new InetSocketAddress(drone_addr, navdata_port));
 
 		selector = Selector.open();
-		channel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 	}
 
 	private void disconnect() {
@@ -56,27 +55,48 @@ public class NavDataReader implements Runnable {
 	public void run() {
 		try {
 			ByteBuffer inbuf = ByteBuffer.allocate(BUFSIZE);
+			boolean channelIsReadable = false;
 			done = false;
-			while (true) {
+			
+			channel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+
+			/* Loop until channel is ready to read. Note that we are 
+			 * gonna produce packets at a pretty high rate here.
+			 */
+			while (!channelIsReadable && !done)
+			{
+				/* Wait until channel is ready to write */
 				selector.select();
-				if (done) {
-					Log.v("Drone Control", "dissssconnnnnnect");
-					disconnect();
-					break;
-				}
 				Set readyKeys = selector.selectedKeys();
 				Iterator iterator = readyKeys.iterator();
 				while (iterator.hasNext() && !done) {
 					SelectionKey key = (SelectionKey) iterator.next();
 					iterator.remove();
 					if (key.isWritable()) {
+						Log.v("NavDataReader", "Send TRIGGER");
 						byte[] trigger_bytes = { 0x01, 0x00, 0x00, 0x00 };
 						ByteBuffer trigger_buf = ByteBuffer.allocate(trigger_bytes.length);
 						trigger_buf.put(trigger_bytes);
 						trigger_buf.flip();
 						channel.write(trigger_buf);
-						channel.register(selector, SelectionKey.OP_READ);
-					} else if (key.isReadable()) {
+					}
+					/* Exit loop when channel is readable */
+					if (key.isReadable())
+						channelIsReadable = true;
+				}
+			}
+			
+			/* Since we won't write any more trigger packets, change to read only */
+			channel.register(selector, SelectionKey.OP_READ);
+			
+			while (!done) {
+				selector.select();
+				Set readyKeys = selector.selectedKeys();
+				Iterator iterator = readyKeys.iterator();
+				while (iterator.hasNext() && !done) {
+					SelectionKey key = (SelectionKey) iterator.next();
+					iterator.remove();
+					if (key.isReadable()) {
 						inbuf.clear();
 						int len = channel.read(inbuf);
 						byte[] packet = new byte[len];
@@ -89,6 +109,9 @@ public class NavDataReader implements Runnable {
 					}
 				}
 			}
+			
+			Log.v("Drone Control", "Disconnect");
+			disconnect();
 		} catch (Exception e) {
 			drone.changeToErrorState(e);
 		}
