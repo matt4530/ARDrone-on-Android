@@ -183,6 +183,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	public void frameReceived(final int startX, final int startY, final int w, final int h, final int[] rgbArray, final int offset, final int scansize) 
 	{
 		(new VideoDisplayer(startX, startY, w, h, rgbArray, offset, scansize)).execute();
+		/*		
 		Log.v("Drone Control", "Frame recieved on FusionDrone   rgbArray.length = " + rgbArray.length + "       width = " + w + " height = " + h);
 		try {
 			drone.playLED(4, 20, 1);
@@ -190,7 +191,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		*/
 		
 	}
 
@@ -374,11 +375,11 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		}
 		@Override
 		protected void onPostExecute(Void param) {;
-			Log.v("Drone Control", "THe system memory is : " + Runtime.getRuntime().freeMemory());
+			//Log.v("Drone Control", "THe system memory is : " + Runtime.getRuntime().freeMemory());
 			((BitmapDrawable)videoDisplay.getDrawable()).getBitmap().recycle(); 
 			videoDisplay.setImageDrawable(new BitmapDrawable(b));
 			FusionDrone.queueToShow--;
-			Log.v("Drone Control", "Queue = " + FusionDrone.queueToShow);
+			//Log.v("Drone Control", "Queue = " + FusionDrone.queueToShow);
 		}
 	}
 }

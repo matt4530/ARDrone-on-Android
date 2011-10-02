@@ -463,6 +463,13 @@ public class ARDrone {
 				if (state != State.CONNECTING && nd.isCommunicationProblemOccurred()) {
 					// 50ms communications watchdog has been triggered
 					cmd_queue.add(new KeepAliveCommand());
+					
+					/* If we are in BOOTSTRAP and get a communication problem, 
+					 * then the Drone probably didn't get our last command to 
+					 * change to DEMO state, so send it again  
+					 */
+					if (state == State.BOOTSTRAP)
+						sendDemoNavigationData();
 				}
 
 			}
