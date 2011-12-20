@@ -2,4 +2,7 @@
 <resources>
     <string name="hello">FusionDrone</string>
     <string name="app_name">ARDrone_JavaDrone</string>
+    <string name="Manoever">Flugmanöver</string>
+    <string name="ButtonClick">MyClickHandler</string>
+    <string name="ManoeverDauer">DauerManoever</string>
 </resources>

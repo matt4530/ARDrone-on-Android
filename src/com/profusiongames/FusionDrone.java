@@ -12,7 +12,6 @@ import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.widget.ArrayAdapter;
@@ -21,8 +20,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.DroneVideoListener;
 import com.codeminders.ardrone.NavData;
