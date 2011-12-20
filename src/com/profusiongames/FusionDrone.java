@@ -12,17 +12,22 @@ import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.DroneVideoListener;
 import com.codeminders.ardrone.NavData;
 import com.codeminders.ardrone.NavDataListener;
+
 
 public class FusionDrone extends Activity implements NavDataListener, DroneVideoListener, SensorEventListener {
 
@@ -33,6 +38,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private static boolean isConnected = false;
 	private static boolean isFlying = false;
 	private int batteryLife = 0;
+	private float height = 0;
 	public static int queueToShow = 0;
 	
 	private double startX = -1f;
@@ -46,15 +52,20 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private ProgressBar connectionWhirlProgress;
 	private Button launchButton;
 	private TextView batteryText;
+	private TextView myHeightText;
 	private ImageView videoDisplay;
-	private Button animateButton;
+	private Spinner flugfigur;
+	private Spinner manoeverzeit;
+	
+	
+	
 	/* Components */
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.main);
+		setContentView(R.layout.main2);
 		fDrone = this;
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		getUIComponents();
@@ -105,6 +116,20 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private void getUIComponents() {
 		statusBar = (TextView) findViewById(R.id.statusBar);
 
+		flugfigur = (Spinner) findViewById(R.id.spinner1);
+		ArrayAdapter adapter = ArrayAdapter.createFromResource(
+	            this, R.array.flugmanoever, android.R.layout.simple_spinner_item);
+	    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+	    flugfigur.setAdapter(adapter);
+	    flugfigur.setSelection(6);
+	    
+	    manoeverzeit = (Spinner) findViewById(R.id.spinner2);
+		ArrayAdapter adapter1 = ArrayAdapter.createFromResource(
+	            this, R.array.flugmandauer, android.R.layout.simple_spinner_item);
+	    adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+	    manoeverzeit.setAdapter(adapter1);
+	    manoeverzeit.setSelection(4);
+	    
 		connectionStartButton = (Button) findViewById(R.id.connectButton);
 		connectionWhirlProgress = (ProgressBar) findViewById(R.id.progressBar1);
 		connectionWhirlProgress.setVisibility(ProgressBar.INVISIBLE);
@@ -133,29 +158,77 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				if (!isConnected) {
 					//do nothing
 				} else if(isFlying) {
-					try { drone.land(); launchButton.setText("Takeoff"); isFlying = false;} 
+					try { drone.land(); 
+					      launchButton.setText("Takeoff"); 
+					      isFlying = false;} 
 					catch (IOException e) {e.printStackTrace();}
 				} else	{
-					try { drone.takeOff(); launchButton.setText("Land"); isFlying = true;}
+					try { //drone.trim();
+						  //Thread.sleep(400);
+					      drone.takeOff(); 
+					      launchButton.setText("Land"); 
+					      isFlying = true;}
 					catch (IOException e) {e.printStackTrace();}
 				}
 			}
 		});
 		batteryText = (TextView) findViewById(R.id.batteryStatusText);
+		myHeightText = (TextView) findViewById(R.id.heightText);
 		videoDisplay = (ImageView) findViewById(R.id.droneVideoDisplay);
-		animateButton = (Button) findViewById(R.id.animateButton);
-		animateButton.setOnClickListener(new View.OnClickListener() {
-		public void onClick(View v) {
+		   	
+	}
+	
+	
+	public void MyClickHandler(View v) {
+  	  
+   	   switch(v.getId())
+   	   {
+   	   case R.id.mayday:
+   		  //Flugmanöver
+ 
+   		 if (!isConnected) {
+		   		//do nothing
+   		 } else if(isFlying) {
+   		 try {
+ 
+   		     drone.playAnimation(((int) flugfigur.getSelectedItemPosition()), ((((int) manoeverzeit.getSelectedItemPosition())+1)*100));
+   		     
+   		 } 
+			catch (IOException e) {e.printStackTrace();}
+		   	}
+   		 
+	        break;
+   	   case R.id.blinkButton:
+  		  //Licht
+   		   if (!isConnected) {
+   			   		//do nothing
+   		   } else if(isFlying) {
+			try { 
+				drone.playLED(1,10,2); //ARDroneLib/Soft/Common/led_animation.h (whole file, with details) for the leds animations
+				drone.playLED(2,10,2); 
+				drone.playLED(3,10,2); 
+				drone.playLED(4,10,2); 
+			} 
+			catch (IOException e) {e.printStackTrace();}
+   		   	}
+	        break;
+   	   case R.id.animateButton:
+   		   //Video
 			try {
 				if(drone != null)
 					drone.sendVideoOnData();
+				    
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-			}
-		});
-	}
+   	       break;
+   	   
 
+  	  }
+   	    	 }
+
+	
+	
 	public static ARDrone getARDrone() {
 		return drone;
 	}
@@ -171,10 +244,21 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		{
 			Log.v("DRONE", nd.getVisionTags().toString());
 		}
+		
 		batteryLife = nd.getBattery();
+		height = nd.getAltitude();
+		if (nd.isBatteryTooLow())
+		{
+			if(isFlying) { try { drone.land(); Thread.sleep(400);} catch (Exception e) {e.printStackTrace();}} //if going to disconnect, but still flying, attempt to tell drone to land
+			connectionStartButton.setEnabled(false);
+			connectionStartButton.setText("Disconnecting...");
+			(new DroneEnder()).execute(FusionDrone.drone);
+		}
+		
 		runOnUiThread(new Runnable() {
 			public void run() {
 				batteryText.setText("Battery Life: " + batteryLife + "%");
+				myHeightText.setText("Altitude : " + height + "m");
 			}
 		});
 	}
