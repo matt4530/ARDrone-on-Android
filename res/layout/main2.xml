@@ -119,16 +119,36 @@
 				   </TextView>
             </LinearLayout>
 
-            <ImageView
-                android:id="@+id/droneVideoDisplay"
-                android:layout_width="match_parent"
-                android:layout_height="734dp"
-                android:layout_marginLeft="6dip"
-                android:layout_toRightOf="@+id/launchButton"
-                android:layout_weight="0.99"
-                android:src="@drawable/icon" >
+            <RelativeLayout
+                android:id="@+id/relativeLayout1"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent" android:fitsSystemWindows="true">
 
-	    </ImageView>
+                <ImageView
+                    android:id="@+id/droneVideoDisplay"
+                    android:layout_width="match_parent"
+                    android:layout_height="734dp"
+                    android:layout_marginLeft="6dip"
+                    android:layout_weight="0.99"
+                    android:src="@drawable/icon" />
+
+                <LinearLayout
+                    android:id="@+id/linearLayout4"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true">
+                    
+                    <com.MobileAnarchy.Android.Widgets.Joystick.DualJoystickView
+					android:id="@+id/dualjoystickView" 
+					android:layout_gravity="center_horizontal"
+					android:layout_width="fill_parent" 
+					android:layout_alignParentBottom="true" 
+					android:layout_height="300dip" 
+					android:layout_alignParentRight="false"/>
+                </LinearLayout>
+				
+				
+            </RelativeLayout>
 
         </LinearLayout>
 

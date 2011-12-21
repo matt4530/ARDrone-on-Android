@@ -20,7 +20,11 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.MobileAnarchy.Android.Widgets.Joystick.DualJoystickView;
+import com.MobileAnarchy.Android.Widgets.Joystick.JoystickMovedListener;
 import com.codeminders.ardrone.ARDrone;
+import com.codeminders.ardrone.ARDrone.VideoChannel;
 import com.codeminders.ardrone.DroneVideoListener;
 import com.codeminders.ardrone.NavData;
 import com.codeminders.ardrone.NavDataListener;
@@ -35,6 +39,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private static boolean isConnected = false;
 	private static boolean isFlying = false;
 	private int batteryLife = 0;
+	
 	private float height = 0;
 	public static int queueToShow = 0;
 	
@@ -56,7 +61,12 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	
 	
 	
-	/* Components */
+	/* Components Joystick */
+
+	DualJoystickView joystick;
+	private int panrotate, tiltheight;
+	private int pansideway,tiltforward;
+	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -160,8 +170,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 					      isFlying = false;} 
 					catch (IOException e) {e.printStackTrace();}
 				} else	{
-					try { //drone.trim();
-						  //Thread.sleep(400);
+					try { drone.trim();
 					      drone.takeOff(); 
 					      launchButton.setText("Land"); 
 					      isFlying = true;}
@@ -172,7 +181,9 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		batteryText = (TextView) findViewById(R.id.batteryStatusText);
 		myHeightText = (TextView) findViewById(R.id.heightText);
 		videoDisplay = (ImageView) findViewById(R.id.droneVideoDisplay);
-		   	
+		
+        joystick = (DualJoystickView)findViewById(R.id.dualjoystickView);
+        joystick.setOnJostickMovedListener(_listenerLeft, _listenerRight);
 	}
 	
 	
@@ -214,7 +225,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 			try {
 				if(drone != null)
 					drone.sendVideoOnData();
-				    
+
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -463,4 +474,83 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 			//Log.v("Drone Control", "Queue = " + FusionDrone.queueToShow);
 		}
 	}
+
+//The left joystick controls movements in the x-dimension
+    private JoystickMovedListener _listenerLeft = new JoystickMovedListener() {
+
+		@Override
+		public void OnMoved(int pan, int tilt) {
+			tiltforward = tilt;
+			pansideway = pan;
+				
+			if (!isConnected) {
+			   		//do nothing
+		       } else if(isFlying) {
+			        try { 
+				         drone.move(pansideway,tiltforward, (-1*tiltheight), panrotate);
+			} 
+			catch (IOException e) {e.printStackTrace();}
+		   	}			
+		}
+
+		@Override
+		public void OnReleased() {
+			tiltforward = 0;
+			pansideway = 0;
+			if (!isConnected) {
+		   		//do nothing
+	       } else if(isFlying) {
+		        try { 
+		        	drone.hover();		} 
+		catch (IOException e) {e.printStackTrace();}
+	   	}			
+			
+			
+
+		}
+		
+		public void OnReturnedToCenter() {
+			//txtX1.setText("stopped");
+			//txtY1.setText("stopped");
+		};
+	}; 
+
+	//the right joystick controls movement in the y and z dimension
+    private JoystickMovedListener _listenerRight = new JoystickMovedListener() {
+
+		@Override
+		public void OnMoved(int pan, int tilt) {
+			tiltheight = tilt;
+			panrotate = pan;
+				
+			if (!isConnected) {
+			   		//do nothing
+		       } else if(isFlying) {
+			        try { 
+				         drone.move(pansideway,tiltforward, (-1*tiltheight), panrotate);
+			} 
+			catch (IOException e) {e.printStackTrace();}
+		   	}
+		}
+
+		@Override
+		public void OnReleased() {
+			tiltheight = 0;
+			panrotate = 0;
+	   		   if (!isConnected) {
+ 			   		//do nothing
+ 		   } else if(isFlying) {
+			try { 
+				drone.move(pansideway,tiltforward, (-1*tiltheight), panrotate);
+			} 
+			catch (IOException e) {e.printStackTrace();}
+ 		   	}		
+		}
+		
+		public void OnReturnedToCenter() {
+			//txtX2.setText("stopped");
+			//txtY2.setText("stopped");
+		};
+	}; 
+
 }

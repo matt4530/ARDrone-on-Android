@@ -5,4 +5,5 @@
     <string name="Manoever">Flugmanöver</string>
     <string name="ButtonClick">MyClickHandler</string>
     <string name="ManoeverDauer">DauerManoever</string>
+    <string name="dualjoystick">Dual Soft-Joystick</string>
 </resources>

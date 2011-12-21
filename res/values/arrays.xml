@@ -32,6 +32,11 @@
         <item >900</item>
         <item >1000</item>
     </string-array>
-
+	<string-array name="camera">
+        <item >Front</item>
+        <item >Down</item>
+        <item >Large front; Small down</item>
+        <item >Large down; Small front</item>
+    </string-array>
 
 </resources>
