@@ -1,5 +1,11 @@
 ***************************************************************************** 
+* This fork is for using the original project on tabletes such as the 
+* ASUS Transformer. Be careful when using it on standard phones.
 *
+* The soft-Joystick that is used, although modified, was originally
+* developed by MobileAnarchy under an OpenSource-License.
+* The original project homepage is located at: 
+* http://code.google.com/p/mobile-anarchy-widgets/
 ***************************************************************************** 
 *
 *               README for FusionDrone
