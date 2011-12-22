@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical"
+	xmlns:android="http://schemas.android.com/apk/res/android">
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"
+		android:text="@string/hello"
+		android:id="@+id/statusBar"
+		android:gravity="center_horizontal"
+		android:background="#B1DCFE"
+		android:textColor="#000000">
+	</TextView>
+
+	<RelativeLayout
+	    android:id="@+id/relativeLayout1"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:padding="6dip" >
+
+	    <TextView
+	        android:id="@+id/statusBar"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_above="@+id/droneVideoDisplay"
+	        android:layout_alignLeft="@+id/droneVideoDisplay"
+	        android:layout_alignRight="@+id/droneVideoDisplay"
+	        android:gravity="center_horizontal"
+	        android:text="@string/hello" >
+	    </TextView>
+
+	    <RelativeLayout
+	        android:id="@+id/buttonBGLayout"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignBottom="@+id/droneVideoDisplay"
+	        android:layout_alignLeft="@+id/connectButton"
+	        android:layout_alignTop="@+id/droneVideoDisplay"
+	        android:layout_toLeftOf="@+id/droneVideoDisplay"
+	        android:background="#63B8FF" >
+
+	        <Button
+	            android:id="@+id/blinkButton"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_alignParentBottom="true"
+	            android:layout_alignParentLeft="true"
+	            android:layout_alignParentRight="true"
+	            android:onClick="@string/ButtonClick"
+	            android:text="Blink" />
+
+	        <Button
+	            android:id="@+id/mayday"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_alignParentTop="true"
+	            android:layout_centerHorizontal="true"
+	            android:layout_marginTop="185dp"
+	            android:onClick="@string/ButtonClick"
+	            android:text="Execute" />
+
+	        <Spinner
+	            android:id="@+id/spinner1"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_alignParentLeft="true"
+	            android:layout_alignParentRight="true"
+	            android:layout_below="@+id/mayday"
+	            android:drawSelectorOnTop="true"
+	            android:prompt="@string/Manoever" />
+
+	    </RelativeLayout>
+
+	    <RelativeLayout
+	        android:id="@+id/relativeLayout2"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_alignBottom="@+id/buttonBGLayout"
+	        android:layout_alignTop="@+id/buttonBGLayout"
+	        android:layout_toRightOf="@+id/buttonBGLayout"
+	        android:background="#4682B2" >
+
+	    </RelativeLayout>
+
+	    <ProgressBar
+	        android:id="@+id/progressBar1"
+	        style="?android:attr/progressBarStyleSmall"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignLeft="@+id/connectButton"
+	        android:visibility="invisible" >
+	    </ProgressBar>
+
+	    <Button
+	        android:id="@+id/connectButton"
+	        android:layout_width="220dip"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentLeft="true"
+	        android:layout_alignWithParentIfMissing="true"
+	        android:layout_below="@+id/progressBar1"
+	        android:text="Connect..." >
+	    </Button>
+
+	    <Button
+	        android:id="@+id/launchButton"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignLeft="@+id/connectButton"
+	        android:layout_alignRight="@+id/connectButton"
+	        android:layout_alignWithParentIfMissing="true"
+	        android:layout_below="@+id/connectButton"
+	        android:text="Launch!" >
+	    </Button>
+
+	    <Button
+	        android:id="@+id/animateButton"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignLeft="@+id/launchButton"
+	        android:layout_alignRight="@+id/launchButton"
+	        android:layout_below="@+id/launchButton"
+	        android:text="Animate" android:onClick="@string/ButtonClick">
+	    </Button>
+
+	    <TextView
+	        android:id="@+id/batteryStatusText"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignLeft="@+id/animateButton"
+	        android:layout_alignRight="@+id/animateButton"
+	        android:layout_below="@+id/animateButton"
+	        android:gravity="center_horizontal"
+	        android:text="Battery Status"
+	        android:textAppearance="?android:attr/textAppearanceSmall" >
+	    </TextView>
+
+	    <ImageView
+	        android:id="@+id/droneVideoDisplay"
+	        android:layout_width="wrap_content"
+	        android:layout_height="match_parent"
+	        android:layout_marginLeft="6dip"
+	        android:layout_toRightOf="@+id/launchButton"
+	        android:src="@drawable/icon" >
+	    </ImageView>
+	</RelativeLayout>
+
+</LinearLayout>

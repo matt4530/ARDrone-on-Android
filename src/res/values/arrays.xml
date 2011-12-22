@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="flugmanoever">
+        <item>Phi-M30</item>
+        <item>Phi-30</item>       
+        <item>Theta-M30</item>
+        <item>Theta-30</item>
+        <item>Theta-20-Yaw-200DEG</item>
+        <item>Theta-20-Yaw-M200DEG</item>
+        <item>Rotate</item>
+        <item>Rotate and Down</item>
+        <item>Yaw-Shake</item>
+        <item>Yaw-Dance</item>
+        <item>Phi-Dance</item>
+        <item>Theta-Dance</item>
+        <item>VZ-Dance</item>
+        <item>Wave</item>
+        <item>Phi-Theta Mixed</item>
+        <item>Double-Phi-Theta Mixed</item>
+        <item>Mayday</item>     
+    </string-array>
+    <string-array name="flugmandauer">
+        <item >100</item>
+        <item >200</item>
+        <item >300</item>
+        <item >400</item>
+        <item >500</item>
+        <item >600</item>
+        <item >700</item>
+        <item >800</item>
+        <item >900</item>
+        <item >1000</item>
+    </string-array>
+	<string-array name="camera">
+        <item >Front</item>
+        <item >Down</item>
+        <item >Large front; Small down</item>
+        <item >Large down; Small front</item>
+    </string-array>
+
+</resources>
