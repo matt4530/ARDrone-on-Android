@@ -612,7 +612,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
 	        
-	        //Manual Trim                     
+	        //Manual Trim and standard configuration                    
 	        case R.id.item2:     if (!isConnected) {//do nothing
 	        					 } else if(!isFlying) {
 	        						   try { 
@@ -662,6 +662,39 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 									   catch (IOException e) {e.printStackTrace();}
 								 }	
             break;
+            //Video-Channel
+	        case R.id.item9:    if (!isConnected) {//do nothing
+								 } else if(!isFlying) {
+									   try { 
+										   drone.setConfigOption("video:video_channel", "0");
+									       } 
+									   catch (IOException e) {e.printStackTrace();}
+								 }	
+	        					 break;
+	        case R.id.item10:    if (!isConnected) {//do nothing
+			 } else if(!isFlying) {
+				   try { 
+					   drone.setConfigOption("video:video_channel", "1");
+				       } 
+				   catch (IOException e) {e.printStackTrace();}
+			 }	
+            break;
+	        case R.id.item11:    if (!isConnected) {//do nothing
+			 } else if(!isFlying) {
+				   try { 
+					   drone.setConfigOption("video:video_channel", "2");
+				       } 
+				   catch (IOException e) {e.printStackTrace();}
+			 }	
+           break;
+	       case R.id.item12:    if (!isConnected) {//do nothing
+			 } else if(!isFlying) {
+				   try { 
+					   drone.setConfigOption("video:video_channel", "3");
+				       } 
+				   catch (IOException e) {e.printStackTrace();}
+			 }	
+           break;
 	    }
 	    return true;
 	}

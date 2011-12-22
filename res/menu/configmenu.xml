@@ -10,6 +10,14 @@
     </item>
     <item android:id="@+id/item2" android:title="Manual Trim"></item>
     <item android:id="@+id/item3" android:title="Outdoor Flight"></item>
+    <item android:id="@+id/item8" android:title="Video-Channel">
+        <menu>
+            <item android:id="@+id/item9" android:title="Horizontal Only"/>
+            <item android:id="@+id/item10" android:title="Vertical Only"/>
+            <item android:id="@+id/item11" android:title="Vertical in Horizontal"/>
+            <item android:id="@+id/item12" android:title="Horizontal in Vertical"/>
+        </menu>
+    </item>
 
     
 
