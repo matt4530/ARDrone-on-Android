@@ -68,8 +68,10 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	/* Components Joystick */
 
 	DualJoystickView joystick;
-	private int panrotate=0, tiltheight=0;
-	private int pansideway=0,tiltforward=0;
+	private int leftx, lefty;
+	private int rightx, righty;
+	
+
 	
 
 	@Override
@@ -479,28 +481,84 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		}
 	}
 
-//The left joystick controls movements in the x-dimension
+//Joystick Control and send of move-commands. Be careful the calculation of values was
+//taken from the Java-Drone project and is meant for a PS3 Controller. This has to be adapted
+//to the softjoystick!!!
+	private void CalculateMove()
+	{
+		float left_right_tilt = 0f;
+        float front_back_tilt = 0f;
+        float vertical_speed = 0f;
+        float angular_speed = 0f;
+
+        if(leftx != 0)
+        {
+            left_right_tilt = ((float) leftx) / 128f;
+            //System.err.println("Left-Right tilt: " + left_right_tilt);
+        }
+
+        if(lefty != 0)
+        {
+            front_back_tilt = ((float) lefty) / 128f;
+            //System.err.println("Front-back tilt: " + front_back_tilt);
+        }
+
+        if(rightx != 0)
+        {
+            angular_speed = ((float) rightx) / 128f;
+            //System.err.println("Angular speed: " + angular_speed);
+        }
+
+        if(righty != 0)
+        {
+            vertical_speed = -1 * ((float) righty) / 128f;
+            //System.err.println("Vertical speed: " + vertical_speed);
+        }
+
+        if(leftx != 0 || lefty != 0 || rightx != 0 || righty != 0)
+        {
+        	if (!isConnected) 
+        	{
+        		//do nothing
+        	}
+        	else if(isFlying) 
+        	{
+        		try {drone.move(left_right_tilt, front_back_tilt, vertical_speed, angular_speed);}
+        		catch (IOException e) {e.printStackTrace();}
+   	        }			
+        }    
+        else
+        {
+        	if (!isConnected) 
+        	{
+        		//do nothing
+        	}
+        	else if(isFlying) 
+        	{
+        		try {drone.hover();}
+        		catch (IOException e) {e.printStackTrace();}
+   	        }			
+        }	
+           
+    }
+
+	
+	
+	//The left joystick controls movements in the x-dimension
     private JoystickMovedListener _listenerLeft = new JoystickMovedListener() {
 
 		@Override
-		public void OnMoved(int pan, int tilt) {
-			tiltforward = tilt;
-			pansideway = pan;
-				
-			if (!isConnected) {
-			   		//do nothing
-		       } else if(isFlying) {
-			        try { 
-				         drone.move(pansideway,tiltforward, tiltheight, panrotate);
-			} 
-			catch (IOException e) {e.printStackTrace();}
-		   	}			
+		public void OnMoved(int pan, int tilt) 
+		{
+			leftx = tilt;
+			lefty = pan;
+			
+			CalculateMove();
 		}
 
 		@Override
 		public void OnReleased() {
-			tiltforward = 0;
-			pansideway = 0;
+			
 			if (!isConnected) {
 		   		//do nothing
 	       } else if(isFlying) {
@@ -523,32 +581,17 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
     private JoystickMovedListener _listenerRight = new JoystickMovedListener() {
 
 		@Override
-		public void OnMoved(int pan, int tilt) {
-			tiltheight = tilt*-1;
-			panrotate = pan;
-				
-			if (!isConnected) {
-			   		//do nothing
-		       } else if(isFlying) {
-			        try { 
-				         drone.move(pansideway,tiltforward, tiltheight, panrotate);
-			} 
-			catch (IOException e) {e.printStackTrace();}
-		   	}
+		public void OnMoved(int pan, int tilt) 
+		{
+			righty = tilt*-1;
+			rightx = pan;
+			
+			CalculateMove();
 		}
 
 		@Override
 		public void OnReleased() {
-			tiltheight = 0;
-			panrotate = 0;
-	   		   if (!isConnected) {
- 			   		//do nothing
- 		   } else if(isFlying) {
-			try { 
-				drone.move(pansideway,tiltforward, tiltheight, panrotate);
-			} 
-			catch (IOException e) {e.printStackTrace();}
- 		   	}		
+        //do Nothing
 		}
 		
 		public void OnReturnedToCenter() {
@@ -568,14 +611,17 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
-	        //Max. Altitude
-	        case R.id.item1:     Toast.makeText(this, "Setting the max. Altitude", Toast.LENGTH_LONG).show();
-	                             break;
+	        
 	        //Manual Trim                     
 	        case R.id.item2:     if (!isConnected) {//do nothing
 	        					 } else if(!isFlying) {
 	        						   try { 
-	        							   	drone.trim();
+	        							    drone.trim();
+	        		                        drone.setConfigOption("control:altitude_max", "2000");
+	        		                        drone.setConfigOption("control:altitude_min", "500");
+	        		                        drone.setConfigOption("control:euler_angle_max", "0.2");
+	        		                        drone.setConfigOption("control:control_vz_max", "2000.0");
+	        		                        drone.setConfigOption("control:control_yaw", "2.0");						   	
 	        						       } 
 	        						   catch (IOException e) {e.printStackTrace();}
 	        					 }		 
@@ -583,6 +629,39 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	        //Preparing for Outdoor Flight                     
 	        case R.id.item3:     Toast.makeText(this, "Flying Outdoor", Toast.LENGTH_LONG).show();
 	        					 break;
+	        					//Submenu with predefined choices regarding max. flightlevel
+	        case R.id.item4:    if (!isConnected) {//do nothing
+								 } else if(!isFlying) {
+									   try { 
+										   drone.setConfigOption("control:altitude_max", "1000");
+									       } 
+									   catch (IOException e) {e.printStackTrace();}
+								 }		
+	                             break;
+	        case R.id.item5:     if (!isConnected) {//do nothing
+								 } else if(!isFlying) {
+									   try { 
+										   drone.setConfigOption("control:altitude_max", "1250");
+									       } 
+									   catch (IOException e) {e.printStackTrace();}
+								 }	
+					            break;
+	        case R.id.item6:     if (!isConnected) {//do nothing
+								 } else if(!isFlying) {
+									   try { 
+										   drone.setConfigOption("control:altitude_max", "1500");
+									       } 
+									   catch (IOException e) {e.printStackTrace();}
+								 }	
+					            break;
+	        case R.id.item7:    if (!isConnected) {//do nothing
+								 } else if(!isFlying) {
+									   try { 
+										   drone.setConfigOption("control:altitude_max", "2000");
+									       } 
+									   catch (IOException e) {e.printStackTrace();}
+								 }	
+            break;
 	    }
 	    return true;
 	}
