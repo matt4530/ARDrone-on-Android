@@ -483,7 +483,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 
 //Joystick Control and send of move-commands. Be careful the calculation of values was
 //taken from the Java-Drone project and is meant for a PS3 Controller. This has to be adapted
-//to the softjoystick!!!
+//to the softjoystick!!! Currently it works but movements are really slow :-(
 	private void CalculateMove()
 	{
 		float left_right_tilt = 0f;
@@ -572,8 +572,9 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		}
 		
 		public void OnReturnedToCenter() {
-			//txtX1.setText("stopped");
-			//txtY1.setText("stopped");
+			leftx=0;
+			lefty=0;
+			CalculateMove();
 		};
 	}; 
 
@@ -595,8 +596,9 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		}
 		
 		public void OnReturnedToCenter() {
-			//txtX2.setText("stopped");
-			//txtY2.setText("stopped");
+			rightx=0;
+			righty=0;
+			CalculateMove();
 		};
 	}; 
 
