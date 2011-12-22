@@ -22,15 +22,9 @@
 
 
 	<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-<uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
-<uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-<uses-permission android:name="android.permission.BATTERY_STATS" />
 <uses-permission android:name="android.permission.BROADCAST_STICKY" />
-<uses-permission android:name="android.permission.CAMERA" />
 <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
 <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
@@ -39,10 +33,8 @@
 <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
 <uses-permission android:name="android.permission.DUMP" />
 <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
-<uses-permission android:name="android.permission.GET_PACKAGE_SIZE" />
 <uses-permission android:name="android.permission.GET_TASKS" />
 <uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.PERSISTENT_ACTIVITY" />
 <uses-permission android:name="android.permission.READ_LOGS" />
 <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
 <uses-permission android:name="android.permission.READ_SYNC_STATS" />
@@ -52,7 +44,6 @@
 <uses-permission android:name="android.permission.SET_DEBUG_APP" />
 <uses-permission android:name="android.permission.SET_PROCESS_LIMIT" />
 <uses-permission android:name="android.permission.SIGNAL_PERSISTENT_PROCESSES" />
-<uses-permission android:name="android.permission.VIBRATE" />
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
 </manifest>

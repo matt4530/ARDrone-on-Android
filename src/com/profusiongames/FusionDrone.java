@@ -64,8 +64,8 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	/* Components Joystick */
 
 	DualJoystickView joystick;
-	private int panrotate, tiltheight;
-	private int pansideway,tiltforward;
+	private int panrotate=0, tiltheight=0;
+	private int pansideway=0,tiltforward=0;
 	
 
 	@Override
@@ -487,7 +487,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 			   		//do nothing
 		       } else if(isFlying) {
 			        try { 
-				         drone.move(pansideway,tiltforward, (-1*tiltheight), panrotate);
+				         drone.move(pansideway,tiltforward, tiltheight, panrotate);
 			} 
 			catch (IOException e) {e.printStackTrace();}
 		   	}			
@@ -520,14 +520,14 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 
 		@Override
 		public void OnMoved(int pan, int tilt) {
-			tiltheight = tilt;
+			tiltheight = tilt*-1;
 			panrotate = pan;
 				
 			if (!isConnected) {
 			   		//do nothing
 		       } else if(isFlying) {
 			        try { 
-				         drone.move(pansideway,tiltforward, (-1*tiltheight), panrotate);
+				         drone.move(pansideway,tiltforward, tiltheight, panrotate);
 			} 
 			catch (IOException e) {e.printStackTrace();}
 		   	}
@@ -541,7 +541,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
  			   		//do nothing
  		   } else if(isFlying) {
 			try { 
-				drone.move(pansideway,tiltforward, (-1*tiltheight), panrotate);
+				drone.move(pansideway,tiltforward, tiltheight, panrotate);
 			} 
 			catch (IOException e) {e.printStackTrace();}
  		   	}		
