@@ -12,6 +12,9 @@ import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.ArrayAdapter;
@@ -20,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.MobileAnarchy.Android.Widgets.Joystick.DualJoystickView;
 import com.MobileAnarchy.Android.Widgets.Joystick.JoystickMovedListener;
@@ -553,4 +557,33 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		};
 	}; 
 
+	//Taking Care of the Config Menu
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.configmenu, menu);
+	    return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+	        //Max. Altitude
+	        case R.id.item1:     Toast.makeText(this, "Setting the max. Altitude", Toast.LENGTH_LONG).show();
+	                             break;
+	        //Manual Trim                     
+	        case R.id.item2:     if (!isConnected) {//do nothing
+	        					 } else if(!isFlying) {
+	        						   try { 
+	        							   	drone.trim();
+	        						       } 
+	        						   catch (IOException e) {e.printStackTrace();}
+	        					 }		 
+	                             break;
+	        //Preparing for Outdoor Flight                     
+	        case R.id.item3:     Toast.makeText(this, "Flying Outdoor", Toast.LENGTH_LONG).show();
+	        					 break;
+	    }
+	    return true;
+	}
 }
