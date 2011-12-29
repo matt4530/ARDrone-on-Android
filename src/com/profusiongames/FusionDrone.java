@@ -28,7 +28,6 @@ import android.widget.Toast;
 import com.MobileAnarchy.Android.Widgets.Joystick.DualJoystickView;
 import com.MobileAnarchy.Android.Widgets.Joystick.JoystickMovedListener;
 import com.codeminders.ardrone.ARDrone;
-import com.codeminders.ardrone.ARDrone.VideoChannel;
 import com.codeminders.ardrone.DroneVideoListener;
 import com.codeminders.ardrone.NavData;
 import com.codeminders.ardrone.NavDataListener;
@@ -78,7 +77,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.main2);
+		setContentView(R.layout.main3);
 		fDrone = this;
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		getUIComponents();
@@ -129,6 +128,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private void getUIComponents() {
 		statusBar = (TextView) findViewById(R.id.statusBar);
 
+		//Selecting one of the predefined flight maneuvre
 		flugfigur = (Spinner) findViewById(R.id.spinner1);
 		ArrayAdapter adapter = ArrayAdapter.createFromResource(
 	            this, R.array.flugmanoever, android.R.layout.simple_spinner_item);
@@ -136,13 +136,18 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	    flugfigur.setAdapter(adapter);
 	    flugfigur.setSelection(6);
 	    
+	    
+	    //Selecting the duration for the pre-configured flight maneuvre
 	    manoeverzeit = (Spinner) findViewById(R.id.spinner2);
 		ArrayAdapter adapter1 = ArrayAdapter.createFromResource(
 	            this, R.array.flugmandauer, android.R.layout.simple_spinner_item);
 	    adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	    manoeverzeit.setAdapter(adapter1);
 	    manoeverzeit.setSelection(4);
+
 	    
+	    //Standard Button. These still have associated handler. The remaining elements use a common
+	    //handler "MyClickHandler" to save resources
 		connectionStartButton = (Button) findViewById(R.id.connectButton);
 		connectionWhirlProgress = (ProgressBar) findViewById(R.id.progressBar1);
 		connectionWhirlProgress.setVisibility(ProgressBar.INVISIBLE);
@@ -164,7 +169,6 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 			}
 		});
 		launchButton = (Button)findViewById(R.id.launchButton);
-		//launchButton.setVisibility(Button.INVISIBLE);
 		launchButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				Log.v("DRONE", "Clicked Launch button");
@@ -184,10 +188,15 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				}
 			}
 		});
+
+		//Displaying battery and height status
 		batteryText = (TextView) findViewById(R.id.batteryStatusText);
 		myHeightText = (TextView) findViewById(R.id.heightText);
+
+		//Take care of the stremeaning video
 		videoDisplay = (ImageView) findViewById(R.id.droneVideoDisplay);
 		
+		//Initialize the Soft-Joysticks
         joystick = (DualJoystickView)findViewById(R.id.dualjoystickView);
         joystick.setOnJostickMovedListener(_listenerLeft, _listenerRight);
 	}
@@ -481,6 +490,10 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		}
 	}
 
+	
+	
+	
+	
 //Joystick Control and send of move-commands. Be careful the calculation of values was
 //taken from the Java-Drone project and is meant for a PS3 Controller. This has to be adapted
 //to the softjoystick!!! Currently it works but movements are really slow :-(

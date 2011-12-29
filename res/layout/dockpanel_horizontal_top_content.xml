@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="horizontal" android:background="#555"
+	android:padding="10dip" android:layout_width="fill_parent"
+	android:layout_height="70dip">
+
+    <Button
+        android:id="@+id/connectButton"
+        android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
+        android:text="Connect..." android:layout_width="wrap_content"/>
+
+<Button
+                        android:id="@+id/launchButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignLeft="@+id/connectButton"
+                        android:layout_alignRight="@+id/connectButton"
+                        android:layout_alignWithParentIfMissing="true"
+                        android:layout_below="@+id/connectButton"
+                        android:text="Launch!" />
+<Button
+                        android:id="@+id/animateButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignLeft="@+id/launchButton"
+                        android:layout_alignRight="@+id/launchButton"
+                        android:layout_below="@+id/launchButton"
+                        android:onClick="@string/ButtonClick"
+                        android:text="Animate" />
+<Button
+                        android:id="@+id/blinkButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentRight="true"
+                        android:onClick="@string/ButtonClick"
+                        android:text="Blink" />
+</LinearLayout>

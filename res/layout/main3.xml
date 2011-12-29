@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:ma="http://com.MobileAnarchy.Android.Widgets"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:background="#333">
+
+	<LinearLayout android:id="@+id/LinearLayout"
+		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:orientation="vertical" android:gravity="center">
+		<!-- Activity Content -->
+		
+		   <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/linearLayout1"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
         android:orientation="vertical" >
 
-        
         
         
         <TextView
@@ -41,65 +50,7 @@
                         android:layout_alignLeft="@+id/connectButton"
                         android:visibility="invisible" />
 
-                    <Button
-                        android:id="@+id/connectButton"
-                        android:layout_width="220dip"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="true"
-                        android:layout_alignWithParentIfMissing="true"
-                        android:layout_below="@+id/progressBar1"
-                        android:text="Connect..." />
-
-                    <Button
-                        android:id="@+id/launchButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_alignLeft="@+id/connectButton"
-                        android:layout_alignRight="@+id/connectButton"
-                        android:layout_alignWithParentIfMissing="true"
-                        android:layout_below="@+id/connectButton"
-                        android:text="Launch!" />
-
-                    <Button
-                        android:id="@+id/animateButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_alignLeft="@+id/launchButton"
-                        android:layout_alignRight="@+id/launchButton"
-                        android:layout_below="@+id/launchButton"
-                        android:onClick="@string/ButtonClick"
-                        android:text="Animate" />
-
-                    <Button
-                        android:id="@+id/blinkButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:layout_alignParentLeft="true"
-                        android:layout_alignParentRight="true"
-                        android:onClick="@string/ButtonClick"
-                        android:text="Blink" />
-
-                    <Spinner
-                        android:id="@+id/spinner1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="50dip"
-                        android:drawSelectorOnTop="true"
-                        android:prompt="@string/Manoever" />
-
-                    <Spinner
-                        android:id="@+id/spinner2"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:prompt="@string/ManoeverDauer" />
-
-                    <Button
-                        android:id="@+id/mayday"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:onClick="@string/ButtonClick"
-                        android:text="Execute" />
+                    
 
                     <TextView
                         android:id="@+id/batteryStatusText"
@@ -150,4 +101,21 @@
 
   
     </LinearLayout>
+		
+	</LinearLayout>
+
+	<com.MobileAnarchy.Android.Widgets.DockPanel.DockPanel
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:layout_gravity="top" ma:dockPosition="top"
+		ma:handleButtonDrawableResourceId="@drawable/top_dock_handle"
+		ma:contentLayoutId="@layout/dockpanel_horizontal_top_content"
+		ma:animationDuration="1000" />
+
+	<com.MobileAnarchy.Android.Widgets.DockPanel.DockPanel
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:layout_gravity="bottom" ma:dockPosition="bottom"
+		ma:contentLayoutId="@layout/dockpanel_horizontal_bottom_content"
+		ma:handleButtonDrawableResourceId="@drawable/bottom_dock_handle" />
+</FrameLayout>        
+ 
  

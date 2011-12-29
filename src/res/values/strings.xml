@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="hello">FusionDrone</string>
-    <string name="app_name">FusionDrone</string>
+    <string name="app_name">ARDrone_JavaDrone</string>
     <string name="Manoever">Flugmanöver</string>
     <string name="ButtonClick">MyClickHandler</string>
     <string name="ManoeverDauer">DauerManoever</string>
