@@ -35,43 +35,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="match_parent" android:fitsSystemWindows="true">
 
-                <LinearLayout
-                    android:id="@+id/linearLayout3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:textColor="#000000" >
 
-                    <ProgressBar
-                        android:id="@+id/progressBar1"
-                        style="?android:attr/progressBarStyleSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignLeft="@+id/connectButton"
-                        android:visibility="invisible" />
-
-                    
-
-                    <TextView
-                        android:id="@+id/batteryStatusText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom"
-                        android:layout_marginTop="50dip"
-                        android:gravity="center_horizontal"
-                        android:text="Battery Status"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-                    <TextView
-                        android:id="@+id/heightText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom"
-                        android:layout_marginTop="50dip"
-                        android:gravity="center_horizontal"
-                        android:text="Height"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
-                </LinearLayout>
 
                 <ImageView
                     android:id="@+id/droneVideoDisplay"
@@ -93,7 +57,7 @@
 					android:layout_width="1000dip" 
 					android:layout_alignParentBottom="true" 
 					android:layout_height="300dip" 
-					android:layout_alignParentRight="false" android:layout_marginLeft="125dip"/>
+					android:layout_alignParentRight="false" android:layout_marginLeft="5dip"/>
                 </LinearLayout>
 				
 				
@@ -104,6 +68,12 @@
 		
 	</LinearLayout>
 
+    <com.MobileAnarchy.Android.Widgets.DockPanel.DockPanel
+		android:layout_width="wrap_content" android:layout_height="fill_parent"
+		android:layout_gravity="left" ma:dockPosition="left"
+		ma:contentLayoutId="@layout/dockpanel_vertical_content"
+		ma:handleButtonDrawableResourceId="@drawable/left_dock_handle" />
+
 	<com.MobileAnarchy.Android.Widgets.DockPanel.DockPanel
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:layout_gravity="top" ma:dockPosition="top"
@@ -111,11 +81,10 @@
 		ma:contentLayoutId="@layout/dockpanel_horizontal_top_content"
 		ma:animationDuration="1000" />
 
-	<com.MobileAnarchy.Android.Widgets.DockPanel.DockPanel
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:layout_gravity="bottom" ma:dockPosition="bottom"
-		ma:contentLayoutId="@layout/dockpanel_horizontal_bottom_content"
-		ma:handleButtonDrawableResourceId="@drawable/bottom_dock_handle" />
+
+	
+	
+	
 </FrameLayout>        
  
  

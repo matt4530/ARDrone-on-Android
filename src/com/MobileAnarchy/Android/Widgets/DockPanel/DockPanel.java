@@ -107,6 +107,7 @@ public class DockPanel extends LinearLayout {
 		if (!isOpen) {
 			contentPlaceHolder.setVisibility(GONE);
 		}
+		
 	}
 
 	private void setDefaultValues(AttributeSet attrs) {
@@ -197,7 +198,7 @@ public class DockPanel extends LinearLayout {
 
 	public void open() {
 		if (!animationRunning) {
-			Log.d(TAG, "Opening...");
+			
 
 			Animation animation = createShowAnimation();
 			this.setAnimation(animation);
@@ -209,7 +210,7 @@ public class DockPanel extends LinearLayout {
 
 	public void close() {
 		if (!animationRunning) {
-			Log.d(TAG, "Closing...");
+			
 
 			Animation animation = createHideAnimation();
 			this.setAnimation(animation);

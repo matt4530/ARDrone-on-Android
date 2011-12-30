@@ -193,12 +193,13 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		batteryText = (TextView) findViewById(R.id.batteryStatusText);
 		myHeightText = (TextView) findViewById(R.id.heightText);
 
-		//Take care of the stremeaning video
+		//Take care of the streaming video
 		videoDisplay = (ImageView) findViewById(R.id.droneVideoDisplay);
 		
 		//Initialize the Soft-Joysticks
         joystick = (DualJoystickView)findViewById(R.id.dualjoystickView);
         joystick.setOnJostickMovedListener(_listenerLeft, _listenerRight);
+                
 	}
 	
 	
@@ -207,7 +208,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
    	   switch(v.getId())
    	   {
    	   case R.id.mayday:
-   		  //Flugmanöver
+   		  //We execute a builtin fligt-operation
  
    		 if (!isConnected) {
 		   		//do nothing
