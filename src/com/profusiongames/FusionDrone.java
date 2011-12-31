@@ -58,7 +58,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private Button connectionStartButton;
 	private ProgressBar connectionWhirlProgress;
 	private Button launchButton;
-	private ProgressBar battery;
+	private TextProgressBar battery;
 	
 	private ImageView videoDisplay;
 	private Spinner flugfigur;
@@ -193,7 +193,8 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		});
 
 		//Displaying battery and height status
-		battery = (ProgressBar) findViewById(R.id.battprogressBar);
+		battery = (TextProgressBar) findViewById(R.id.battprogressBar);
+		battery.setText("Battery Level");
 		altitude = (Gauge) findViewById(R.id.meter2);
 
 		//Take care of the streaming video
@@ -302,6 +303,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 						battery.setBackgroundColor(android.graphics.Color.RED);
 					}
 				}
+				battery.setText("Battery Level:"+String.valueOf(batteryLife)+"%");
 				altitude.setValue((float) height);
 			}
 		});

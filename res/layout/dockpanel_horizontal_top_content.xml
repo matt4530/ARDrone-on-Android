@@ -46,11 +46,15 @@
 		atswidget:showRange="false"
 		/>
 
-                    <ProgressBar
+                    <com.profusiongames.TextProgressBar
                         android:id="@+id/battprogressBar"
                         style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" android:max="100"/>
+                        android:layout_width="150dip"
+                        android:layout_height="50dip" 
+                        android:max="100"
+                        android:progress="0"
+                        android:layout_marginLeft="10dip"
+                        android:layout_marginTop="40dip"/>
 
   
                    
