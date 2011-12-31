@@ -6,6 +6,8 @@
 * developed by MobileAnarchy under an OpenSource-License.
 * The original project homepage is located at: 
 * http://code.google.com/p/mobile-anarchy-widgets/
+
+The gauge widget wass developed by Freddy Martens (see Extra License File)
 ***************************************************************************** 
 *
 *               README for FusionDrone

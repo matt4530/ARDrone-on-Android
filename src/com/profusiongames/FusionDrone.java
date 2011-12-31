@@ -1,5 +1,6 @@
 package com.profusiongames;
 
+import java.awt.Color;
 import java.io.IOException;
 
 import android.app.Activity;
@@ -31,6 +32,7 @@ import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.DroneVideoListener;
 import com.codeminders.ardrone.NavData;
 import com.codeminders.ardrone.NavDataListener;
+import com.freddymartens.android.widgets.Gauge;
 
 
 public class FusionDrone extends Activity implements NavDataListener, DroneVideoListener, SensorEventListener {
@@ -56,12 +58,13 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private Button connectionStartButton;
 	private ProgressBar connectionWhirlProgress;
 	private Button launchButton;
-	private TextView batteryText;
-	private TextView myHeightText;
+	private ProgressBar battery;
+	
 	private ImageView videoDisplay;
 	private Spinner flugfigur;
 	private Spinner manoeverzeit;
 	
+	private Gauge altitude;
 	
 	
 	/* Components Joystick */
@@ -190,8 +193,8 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		});
 
 		//Displaying battery and height status
-		batteryText = (TextView) findViewById(R.id.batteryStatusText);
-		myHeightText = (TextView) findViewById(R.id.heightText);
+		battery = (ProgressBar) findViewById(R.id.battprogressBar);
+		altitude = (Gauge) findViewById(R.id.meter2);
 
 		//Take care of the streaming video
 		videoDisplay = (ImageView) findViewById(R.id.droneVideoDisplay);
@@ -199,7 +202,9 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		//Initialize the Soft-Joysticks
         joystick = (DualJoystickView)findViewById(R.id.dualjoystickView);
         joystick.setOnJostickMovedListener(_listenerLeft, _listenerRight);
-                
+             
+        
+    
 	}
 	
 	
@@ -281,8 +286,23 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		
 		runOnUiThread(new Runnable() {
 			public void run() {
-				batteryText.setText("Battery Life: " + batteryLife + "%");
-				myHeightText.setText("Altitude : " + height + "m");
+				battery.setProgress(batteryLife);
+				if (batteryLife > 50)
+				{ //OK
+					battery.setBackgroundColor(android.graphics.Color.GREEN);
+				}
+				else
+				{
+					if (batteryLife > 30)
+					{
+						battery.setBackgroundColor(android.graphics.Color.YELLOW);
+					}
+					else
+					{
+						battery.setBackgroundColor(android.graphics.Color.RED);
+					}
+				}
+				altitude.setValue((float) height);
 			}
 		});
 	}
@@ -436,7 +456,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				connectionStartButton.setText("Connect...");
 				connectionStartButton.setEnabled(true);
 				//launchButton.setVisibility(Button.INVISIBLE);
-				batteryText.setText("Battery Status");
+				
 			} else {
 				connectionStartButton.setText("Error 2. Retry?");
 			}
