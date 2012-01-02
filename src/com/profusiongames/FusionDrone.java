@@ -1,6 +1,5 @@
 package com.profusiongames;
 
-import java.awt.Color;
 import java.io.IOException;
 
 import android.app.Activity;

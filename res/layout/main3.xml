@@ -69,17 +69,23 @@
 	</LinearLayout>
 
     <com.MobileAnarchy.Android.Widgets.DockPanel.DockPanel
-		android:layout_width="wrap_content" android:layout_height="fill_parent"
-		android:layout_gravity="left" ma:dockPosition="left"
+		android:layout_width="wrap_content" 
+		android:layout_height="fill_parent"
+		android:layout_gravity="left" 
+		ma:dockPosition="left"
 		ma:contentLayoutId="@layout/dockpanel_vertical_content"
-		ma:handleButtonDrawableResourceId="@drawable/left_dock_handle" />
+		ma:handleButtonDrawableResourceId="@drawable/left_dock_handle" 
+		ma:isOpen="false" />
 
 	<com.MobileAnarchy.Android.Widgets.DockPanel.DockPanel
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:layout_gravity="top" ma:dockPosition="top"
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content"
+		android:layout_gravity="top" 
+		ma:dockPosition="top"
 		ma:handleButtonDrawableResourceId="@drawable/top_dock_handle"
 		ma:contentLayoutId="@layout/dockpanel_horizontal_top_content"
-		ma:animationDuration="1000" />
+		ma:animationDuration="1000"
+		ma:isOpen="false" />
 
 
 	
