@@ -1,62 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:atswidget="http://schemas.android.com/apk/res/com.profusiongames"
-	android:orientation="horizontal" android:background="#66331100"
-	android:padding="10dip" android:layout_width="fill_parent"
-	android:layout_height="140dip">
-	
-    
-                    <ProgressBar
-                        android:id="@+id/progressBar1"
-                        style="?android:attr/progressBarStyleSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignLeft="@+id/connectButton"
-                        android:visibility="invisible" />
+    android:layout_width="fill_parent"
+    android:layout_height="190dip"
+    android:background="#66331100"
+    android:orientation="horizontal"
+    android:padding="10dip" >
 
 
-	<com.freddymartens.android.widgets.Gauge
-		android:id="@+id/meter2" 
-		android:layout_gravity="center" 
-		android:layout_width="wrap_content"
-		android:layout_height="180px" 
-		android:layout_margin="2px"
-		atswidget:totalNotches="120" 
-		atswidget:incrementPerLargeNotch="10"
-		atswidget:incrementPerSmallNotch="2" 
-		atswidget:scaleCenterValue="100"
-		atswidget:scaleColor="0x9f004d0f" 
-		atswidget:scaleMinValue="0"
-		atswidget:scaleMaxValue="200" 
-		atswidget:rangeOkColor="0x9f00ff00"
-		atswidget:rangeOkMinValue="-90" 
-		atswidget:rangeOkMaxValue="45"
-		atswidget:rangeWarningColor="0x9fff8800"
-		atswidget:rangeWarningMinValue="45" 
-		atswidget:rangeWarningMaxValue="80"
-		atswidget:rangeErrorColor="0x9fff0000" 
-		atswidget:rangeErrorMinValue="80"
-		atswidget:rangeErrorMaxValue="110" 
-		atswidget:unitTitle="cm"
-		atswidget:lowerTitle="Altitude" 
-		atswidget:upperTitle="Safety Level 2m" 
-		atswidget:showGauge="true"
-		atswidget:showHand="true"
-		atswidget:showRange="false"
-		/>
+    <WebView
+        android:id="@+id/webView1"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent" />
 
-                    <com.profusiongames.TextProgressBar
-                        android:id="@+id/battprogressBar"
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="150dip"
-                        android:layout_height="50dip" 
-                        android:max="100"
-                        android:progress="0"
-                        android:layout_marginLeft="10dip"
-                        android:layout_marginTop="40dip"/>
-
-  
-                   
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/connectButton"
+        android:visibility="invisible" />
 
 </LinearLayout>

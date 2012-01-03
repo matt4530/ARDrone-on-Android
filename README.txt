@@ -6,8 +6,11 @@
 * developed by MobileAnarchy under an OpenSource-License.
 * The original project homepage is located at: 
 * http://code.google.com/p/mobile-anarchy-widgets/
-
-The gauge widget wass developed by Freddy Martens (see Extra License File)
+*
+* Sensor Data is visualized by using the javascript version of the steelseries
+* Gauges: http://harmoniccode.blogspot.com/2011/04/steelseries-javascript-edition.html
+* In order to obtain flight instruments the branch mastered by Mark Crossley
+* https://github.com/HanSolo/SteelSeries-Canvas was used
 ***************************************************************************** 
 *
 *               README for FusionDrone

@@ -11,12 +11,15 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -24,6 +27,9 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.webkit.WebChromeClient;
+import android.webkit.JsResult;
+
 
 import com.MobileAnarchy.Android.Widgets.Joystick.DualJoystickView;
 import com.MobileAnarchy.Android.Widgets.Joystick.JoystickMovedListener;
@@ -31,7 +37,8 @@ import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.DroneVideoListener;
 import com.codeminders.ardrone.NavData;
 import com.codeminders.ardrone.NavDataListener;
-import com.freddymartens.android.widgets.Gauge;
+
+
 
 
 public class FusionDrone extends Activity implements NavDataListener, DroneVideoListener, SensorEventListener {
@@ -42,9 +49,14 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 
 	private static boolean isConnected = false;
 	private static boolean isFlying = false;
-	private int batteryLife = 0;
 	
+	//Sensor Data
+	private int batteryLife = 0;	
 	private float height = 0;
+	private float pitch = 0;
+	private float roll = 0;	
+	private float yaw;
+	
 	public static int queueToShow = 0;
 	
 	private double startX = -1f;
@@ -57,14 +69,15 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private Button connectionStartButton;
 	private ProgressBar connectionWhirlProgress;
 	private Button launchButton;
-	private TextProgressBar battery;
+	//private TextProgressBar battery;
 	
 	private ImageView videoDisplay;
 	private Spinner flugfigur;
 	private Spinner manoeverzeit;
 	
-	private Gauge altitude;
-	
+	//private Gauge altitude;
+    private WebView mWebView;
+    private Handler mHandler = new Handler();
 	
 	/* Components Joystick */
 
@@ -192,10 +205,21 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		});
 
 		//Displaying battery and height status
-		battery = (TextProgressBar) findViewById(R.id.battprogressBar);
-		battery.setText("Battery Level");
-		altitude = (Gauge) findViewById(R.id.meter2);
+		//battery = (TextProgressBar) findViewById(R.id.battprogressBar);
+		//battery.setText("Battery Level");
+		//altitude = (Gauge) findViewById(R.id.meter2);
+		mWebView = (WebView) findViewById(R.id.webView1);
+		WebSettings webSettings = mWebView.getSettings();
+        webSettings.setSavePassword(false);
+        webSettings.setSaveFormData(false);
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setSupportZoom(false);
+        
+        mWebView.setWebChromeClient(new MyWebChromeClient());
 
+        mWebView.addJavascriptInterface(new DemoJavaScriptInterface(), "demo");
+        mWebView.loadUrl("file:///android_asset/Gauge.html");
+		
 		//Take care of the streaming video
 		videoDisplay = (ImageView) findViewById(R.id.droneVideoDisplay);
 		
@@ -207,7 +231,37 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
     
 	}
 	
-	
+    final class DemoJavaScriptInterface {
+
+        DemoJavaScriptInterface() {
+        }
+
+        /**
+         * This is not called on the UI thread. Post a runnable to invoke
+         * loadUrl on the UI thread.
+         */
+        public void clickOnAndroid() {
+            mHandler.post(new Runnable() {
+                public void run() {
+                    mWebView.loadUrl("javascript:wave()");
+                }
+            });
+
+        }
+    }
+
+    /**
+     * Provides a hook for calling "alert" from javascript. Useful for
+     * debugging your javascript.
+     */
+    final class MyWebChromeClient extends WebChromeClient {
+        @Override
+        public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+            result.confirm();
+            return true;
+        }
+    }
+    
 	public void MyClickHandler(View v) {
   	  
    	   switch(v.getId())
@@ -276,6 +330,9 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		
 		batteryLife = nd.getBattery();
 		height = nd.getAltitude();
+		pitch = nd.getPitch();
+		roll = nd.getRoll();
+		yaw = nd.getYaw();
 		if (nd.isBatteryTooLow())
 		{
 			if(isFlying) { try { drone.land(); Thread.sleep(400);} catch (Exception e) {e.printStackTrace();}} //if going to disconnect, but still flying, attempt to tell drone to land
@@ -286,24 +343,17 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		
 		runOnUiThread(new Runnable() {
 			public void run() {
-				battery.setProgress(batteryLife);
-				if (batteryLife > 50)
-				{ //OK
-					battery.setBackgroundColor(android.graphics.Color.GREEN);
-				}
-				else
-				{
-					if (batteryLife > 30)
-					{
-						battery.setBackgroundColor(android.graphics.Color.YELLOW);
-					}
-					else
-					{
-						battery.setBackgroundColor(android.graphics.Color.RED);
-					}
-				}
-				battery.setText("Battery Level:"+String.valueOf(batteryLife)+"%");
-				altitude.setValue((float) height);
+				mWebView.loadUrl("javascript:radial1.setValue("+String.valueOf(batteryLife)+")");
+				mWebView.loadUrl("javascript:radial2.setValue("+String.valueOf(height)+")");				
+				mWebView.loadUrl("javascript:radial3.setValue("+String.valueOf(yaw)+")");
+
+				mWebView.loadUrl("javascript:radial4.setValue("+String.valueOf(height)+")");
+			    mWebView.loadUrl("javascript:radial5.setValue("+String.valueOf(height)+")");
+
+				mWebView.loadUrl("javascript:radial6.setPitchAnimated("+String.valueOf(pitch)+")");
+				mWebView.loadUrl("javascript:radial6.setRollAnimated("+String.valueOf(roll)+")");
+
+				
 			}
 		});
 	}
