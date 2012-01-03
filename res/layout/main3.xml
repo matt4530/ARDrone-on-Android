@@ -41,8 +41,6 @@
                     android:id="@+id/droneVideoDisplay"
                     android:layout_width="fill_parent"
                     android:layout_height="734dp"
-                    android:layout_marginLeft="200dip"
-                    android:layout_weight="0.99"
                     android:src="@drawable/icon" />
 
                 <LinearLayout

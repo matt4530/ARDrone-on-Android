@@ -6,7 +6,7 @@
         android:id="@+id/connectButton"
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="true"
-        android:text="Connect" android:layout_width="wrap_content" android:layout_marginTop="80dip"/>
+        android:text="Connect" android:layout_width="wrap_content" android:layout_marginTop="180dip"/>
 
 <Button
                         android:id="@+id/launchButton"

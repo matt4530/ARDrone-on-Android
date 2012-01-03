@@ -55,7 +55,8 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private float height = 0;
 	private float pitch = 0;
 	private float roll = 0;	
-	private float yaw;
+	private float yaw = 0;
+	
 	
 	public static int queueToShow = 0;
 	
@@ -69,13 +70,12 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private Button connectionStartButton;
 	private ProgressBar connectionWhirlProgress;
 	private Button launchButton;
-	//private TextProgressBar battery;
 	
 	private ImageView videoDisplay;
 	private Spinner flugfigur;
 	private Spinner manoeverzeit;
 	
-	//private Gauge altitude;
+	//Instrument Panel
     private WebView mWebView;
     private Handler mHandler = new Handler();
 	
@@ -333,6 +333,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		pitch = nd.getPitch();
 		roll = nd.getRoll();
 		yaw = nd.getYaw();
+	    
 		if (nd.isBatteryTooLow())
 		{
 			if(isFlying) { try { drone.land(); Thread.sleep(400);} catch (Exception e) {e.printStackTrace();}} //if going to disconnect, but still flying, attempt to tell drone to land
@@ -343,13 +344,16 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		
 		runOnUiThread(new Runnable() {
 			public void run() {
+				//Battery State
 				mWebView.loadUrl("javascript:radial1.setValue("+String.valueOf(batteryLife)+")");
+				//Altitude
 				mWebView.loadUrl("javascript:radial2.setValue("+String.valueOf(height)+")");				
-				mWebView.loadUrl("javascript:radial3.setValue("+String.valueOf(yaw)+")");
-
-				mWebView.loadUrl("javascript:radial4.setValue("+String.valueOf(height)+")");
-			    mWebView.loadUrl("javascript:radial5.setValue("+String.valueOf(height)+")");
-
+				//Orientation of Controller
+				mWebView.loadUrl("javascript:radial3.setValue("+String.valueOf(startX)+")");
+				//Yaw
+				mWebView.loadUrl("javascript:radial4.setValue("+String.valueOf(yaw)+")");
+			    //mWebView.loadUrl("javascript:radial5.setValue("+String.valueOf(height)+")");
+				//Horizon (Pitch and Roll)
 				mWebView.loadUrl("javascript:radial6.setPitchAnimated("+String.valueOf(pitch)+")");
 				mWebView.loadUrl("javascript:radial6.setRollAnimated("+String.valueOf(roll)+")");
 
@@ -386,6 +390,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private float sensorThreshold = 3;
 	@Override
 	public void onSensorChanged(SensorEvent e) {
+		
 		if(Math.random() < 1) return;
 		Log.v("DRONE", "sensor: " + e.sensor + ", x: " + MathUtil.trunk(e.values[0]) + ", y: " + MathUtil.trunk(e.values[1]) + ", z: " + MathUtil.trunk(e.values[2]));
 		if(startX == -1f) 
@@ -400,7 +405,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		if( MathUtil.abs(shortX) <  sensorThreshold) shortX = 0;// do nothing
 		if( MathUtil.abs(shortY) <  sensorThreshold) shortY = 0;// do nothing
 		if( MathUtil.abs(shortZ) <  sensorThreshold) shortZ = 0;// do nothing
-		Log.v("DRONE", "sensor difference: x: " + shortX + ", y: " + shortY + ", z: " + shortZ);
+		//Log.v("DRONE", "sensor difference: x: " + shortX + ", y: " + shortY + ", z: " + shortZ);
 	} 
 	
 
