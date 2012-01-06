@@ -25,6 +25,7 @@ public class NavDataReader implements Runnable {
 
 		channel = DatagramChannel.open();
 		channel.configureBlocking(false);
+		channel.socket().setReuseAddress(true);
 		channel.socket().bind(new InetSocketAddress(navdata_port));
 		channel.connect(new InetSocketAddress(drone_addr, navdata_port));
 

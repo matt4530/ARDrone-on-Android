@@ -313,6 +313,9 @@ public class ARDrone {
 
 			video_reader = new VideoReader(this, drone_addr, VIDEO_PORT);
 			video_reader_thread = new Thread(video_reader,"Video Reader");
+
+			video_reader_thread.setPriority(Thread.MAX_PRIORITY);
+			
 			video_reader_thread.start();
 
 

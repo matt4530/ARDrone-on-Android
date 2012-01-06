@@ -40,7 +40,7 @@
                 <ImageView
                     android:id="@+id/droneVideoDisplay"
                     android:layout_width="fill_parent"
-                    android:layout_height="734dp"
+                    android:layout_height="734dip"
                     android:src="@drawable/icon" />
 
                 <LinearLayout

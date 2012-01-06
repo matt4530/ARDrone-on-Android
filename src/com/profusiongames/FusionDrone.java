@@ -46,7 +46,8 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private static FusionDrone fDrone;
 	private static ARDrone drone;
 	private static SensorManager sensorManager;
-
+	private static Sensor mCompass;
+	
 	private static boolean isConnected = false;
 	private static boolean isFlying = false;
 	
@@ -95,6 +96,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		setContentView(R.layout.main3);
 		fDrone = this;
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+		mCompass = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
 		getUIComponents();
 		
 	}
@@ -113,7 +115,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	@Override
 	protected void onResume() {
         super.onResume();
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), 3);
+        sensorManager.registerListener(this, mCompass, SensorManager.SENSOR_DELAY_NORMAL);
     }
 	@Override
     protected void onPause() {
@@ -323,13 +325,13 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	public void navDataReceived(NavData nd) {
 		//NavData.printState(nd);
 		//Log.v("DRONE", nd.getVisionTags().toString());
-		if(nd.getVisionTags() != null)
-		{
-			Log.v("DRONE", nd.getVisionTags().toString());
-		}
+		//if(nd.getVisionTags() != null)
+		//{
+		//	Log.v("DRONE", nd.getVisionTags().toString());
+		//}
 		
 		batteryLife = nd.getBattery();
-		height = nd.getAltitude();
+		height = nd.getAltitude()*100; //Multiply to allow for Altimeter Usage
 		pitch = nd.getPitch();
 		roll = nd.getRoll();
 		yaw = nd.getYaw();
@@ -366,16 +368,6 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	public void frameReceived(final int startX, final int startY, final int w, final int h, final int[] rgbArray, final int offset, final int scansize) 
 	{
 		(new VideoDisplayer(startX, startY, w, h, rgbArray, offset, scansize)).execute();
-		/*		
-		Log.v("Drone Control", "Frame recieved on FusionDrone   rgbArray.length = " + rgbArray.length + "       width = " + w + " height = " + h);
-		try {
-			drone.playLED(4, 20, 1);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
-		
 	}
 
 
@@ -391,14 +383,14 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	@Override
 	public void onSensorChanged(SensorEvent e) {
 		
-		if(Math.random() < 1) return;
-		Log.v("DRONE", "sensor: " + e.sensor + ", x: " + MathUtil.trunk(e.values[0]) + ", y: " + MathUtil.trunk(e.values[1]) + ", z: " + MathUtil.trunk(e.values[2]));
-		if(startX == -1f) 
-		{
+		//if(Math.random() < 1) return;
+		//Log.v("DRONE", "sensor: " + e.sensor + ", x: " + MathUtil.trunk(e.values[0]) + ", y: " + MathUtil.trunk(e.values[1]) + ", z: " + MathUtil.trunk(e.values[2]));
+		//if(startX == -1f) 
+		//{
 			startX = e.values[0];
 			startY = e.values[1];
 			startZ = e.values[2];
-		}
+		//}
 		float shortX = MathUtil.trunk(MathUtil.getShortestAngle(e.values[0],(float) startX));
 		float shortY = MathUtil.trunk(MathUtil.getShortestAngle(e.values[1],(float) startY));
 		float shortZ = MathUtil.trunk(MathUtil.getShortestAngle(e.values[2],(float) startZ));
@@ -490,6 +482,14 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				drone.clearStatusChangeListeners();
 				drone.disconnect();
 				Log.v("DRONE", "Disconnected to ARDrone" + FusionDrone.drone);
+				mWebView.loadUrl("javascript:radial1.setValue("+String.valueOf(0)+")");
+				mWebView.loadUrl("javascript:radial2.setValue("+String.valueOf(0)+")");				
+				mWebView.loadUrl("javascript:radial3.setValue("+String.valueOf(0)+")");
+				mWebView.loadUrl("javascript:radial4.setValue("+String.valueOf(0)+")");
+			    mWebView.loadUrl("javascript:radial5.setValue("+String.valueOf(0)+")");
+				mWebView.loadUrl("javascript:radial6.setPitchAnimated("+String.valueOf(0)+")");
+				mWebView.loadUrl("javascript:radial6.setRollAnimated("+String.valueOf(0)+")");
+				
 				return true;
 			} catch (Exception e) {
 				e.printStackTrace();
