@@ -120,8 +120,8 @@ public class VideoReader implements Runnable {
 
 	                    if (frames > 1)
 	                    {
-	                    	Log.v("VideoReader", "Dropped " + (frames-1) + " frames (total frames " +
-	                    			framesTotal + ", dropped " + framesDropped + ")");
+	                    	//Log.v("VideoReader", "Dropped " + (frames-1) + " frames (total frames " +
+	                    	//		framesTotal + ", dropped " + framesDropped + ")");
 	                    	framesDropped += frames - 1;
 	                    }
 

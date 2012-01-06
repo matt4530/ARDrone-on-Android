@@ -305,17 +305,17 @@ public class ARDrone {
 
 			cmd_sender = new CommandSender(cmd_queue, this, drone_addr, cmd_socket);
 			cmd_sending_thread = new Thread(cmd_sender);
+			cmd_sending_thread.setPriority(Thread.MAX_PRIORITY);
 			cmd_sending_thread.start();
 
 			nav_data_reader = new NavDataReader(this, drone_addr, NAVDATA_PORT);
 			nav_data_reader_thread = new Thread(nav_data_reader);
+			nav_data_reader_thread.setPriority(Thread.MAX_PRIORITY);
 			nav_data_reader_thread.start();
 
 			video_reader = new VideoReader(this, drone_addr, VIDEO_PORT);
 			video_reader_thread = new Thread(video_reader,"Video Reader");
-
 			video_reader_thread.setPriority(Thread.MAX_PRIORITY);
-			
 			video_reader_thread.start();
 
 

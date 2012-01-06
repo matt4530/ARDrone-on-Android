@@ -3,6 +3,7 @@ package com.profusiongames;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Sensor;
@@ -13,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -86,7 +88,8 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private int leftx, lefty;
 	private int rightx, righty;
 	
-
+    //Display
+	int displayWidth, displayHeight;
 	
 
 	@Override
@@ -95,8 +98,15 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main3);
 		fDrone = this;
+		//Handling the actual screen size
+		Display display = getWindowManager().getDefaultDisplay();
+        displayWidth = display.getWidth();             
+        displayHeight = display.getHeight();
+
+		//Getting Sensor Services for Control Device
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		mCompass = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+        //Inituializing GUI
 		getUIComponents();
 		
 	}
@@ -331,7 +341,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		//}
 		
 		batteryLife = nd.getBattery();
-		height = nd.getAltitude()*100; //Multiply to allow for Altimeter Usage
+		height = nd.getAltitude()*1000; //Multiply to allow for Altimeter Usage
 		pitch = nd.getPitch();
 		roll = nd.getRoll();
 		yaw = nd.getYaw();
@@ -553,6 +563,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		
 		@Override
 		protected Void doInBackground(Void... params) {
+			Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 			b =  Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.RGB_565);
 			b.setDensity(100);
 			return null;

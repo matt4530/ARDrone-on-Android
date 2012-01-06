@@ -39,6 +39,7 @@
 
                 <ImageView
                     android:id="@+id/droneVideoDisplay"
+                    android:scaleType="centerCrop"
                     android:layout_width="fill_parent"
                     android:layout_height="734dip"
                     android:src="@drawable/icon" />
@@ -47,7 +48,9 @@
                     android:id="@+id/linearLayout4"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true">
+                    android:orientation="vertical" 
+                    android:layout_alignParentBottom="true" 
+                    android:layout_centerHorizontal="true">
                     
                     <com.MobileAnarchy.Android.Widgets.Joystick.DualJoystickView
 					android:id="@+id/dualjoystickView" 
