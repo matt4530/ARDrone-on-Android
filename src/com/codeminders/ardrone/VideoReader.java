@@ -20,23 +20,22 @@ public class VideoReader implements Runnable {
 	 * Image data buffer. It should be big enough to hold single full frame
 	 * (encoded).
 	 */
-	private static final int BUFSIZE = 120 * 1024;
-
+	//private static final int BUFSIZE = 120 * 1024;
+	//private static final int BUFSIZE = 100 * 1024;
+	private static final int BUFSIZE = 25 * 1024;
+	
+	
 	private DatagramChannel channel;
 	private ARDrone drone;
 	private Selector selector;
 	private boolean done;
 	
-	//private byte[] trigger_bytes = { 0x01, 0x00, 0x00, 0x00 };
-    //private ByteBuffer trigger_buf = ByteBuffer.allocate(trigger_bytes.length);
-    
+	   
 
 	public VideoReader(ARDrone drone, InetAddress drone_addr, int video_port) throws IOException {
 		this.drone = drone;
 
-		//trigger_buf.put(trigger_bytes);
-	    //trigger_buf.flip();
-		
+			
 		channel = DatagramChannel.open();
 		channel.configureBlocking(false);
 		channel.socket().bind(new InetSocketAddress(video_port));
@@ -69,74 +68,67 @@ public class VideoReader implements Runnable {
 	@SuppressWarnings("rawtypes")
 	@Override
     public void run() {
-        try {
-            ByteBuffer inbuf = ByteBuffer.allocate(BUFSIZE);
-            int framesTotal = 0;
-            int framesDropped = 0;
-            done = false;
-            final BufferedVideoImage vi = new BufferedVideoImage();;
-            while (true) {
-            	byte[] trigger_bytes = { 0x01, 0x00, 0x00, 0x00 };
-                ByteBuffer trigger_buf = ByteBuffer.allocate(trigger_bytes.length);
-                trigger_buf.put(trigger_bytes);
-                trigger_buf.flip();
-                channel.write(trigger_buf);
-
-                //channel.write(trigger_buf);
-                selector.select();
-                if (done) {
-                	disconnect();
-	                break;
-	            }
-	            Set readyKeys = selector.selectedKeys();
-	            Iterator iterator = readyKeys.iterator();
-	            while (iterator.hasNext() && !done) {
-	                SelectionKey key = (SelectionKey) iterator.next();
-	                iterator.remove();
-	                //if (key.isWritable()) {
-	                    /*byte[] trigger_bytes = { 0x01, 0x00, 0x00, 0x00 };
+	       try
+	        {
+	    	    int framesTotal = 0;
+	            int framesDropped = 0;
+	            ByteBuffer inbuf = ByteBuffer.allocate(BUFSIZE);
+	            done = false;
+	            while(!done)
+	            {
+	                selector.select();
+	                if(done)
+	                {
+	                    disconnect();
+	                    break;
+	                }
+	                Set readyKeys = selector.selectedKeys();
+	                Iterator iterator = readyKeys.iterator();
+	                while(iterator.hasNext())
+	                {
+	                    SelectionKey key = (SelectionKey) iterator.next();
+	                    iterator.remove();
+	                    byte[] trigger_bytes = { 0x01, 0x00, 0x00, 0x00 };
 	                    ByteBuffer trigger_buf = ByteBuffer.allocate(trigger_bytes.length);
 	                    trigger_buf.put(trigger_bytes);
 	                    trigger_buf.flip();
-	                    channel.write(trigger_buf);*/
-	                    //channel.register(selector, SelectionKey.OP_READ);
-	                /*} else*/ if (key.isReadable()) {
-	                	//Log.v("Drone Control", "VideoReader: got data");
-	                    inbuf.clear();
-	                    int len;
-	                    int len_last = 0;
-	                    int frames = -1;
-	                    
-	                    /* Read as many frames as we can so that latency is reduced */
-	                    do
-	                    {
-	                    	len = len_last;
-	                    	len_last = channel.read(inbuf);
-	                    	frames++;
-	                    }
-	                    while (len_last > 0);
+	                    channel.write(trigger_buf);
+	                        inbuf.clear();
+	                        int len = channel.read(inbuf);
+		                    int len_last = 0;
+		                    int frames = -1;
 
-	                    framesTotal += frames;
+		                    
+		                    // Read as many frames as we can so that latency is reduced 
+		                    do
+		                    {
+		                    	len = len_last;
+		                    	len_last = channel.read(inbuf);
+		                    	frames++;
+		                    } while (len_last > 0);
 
-	                    if (frames > 1)
-	                    {
-	                    	//Log.v("VideoReader", "Dropped " + (frames-1) + " frames (total frames " +
-	                    	//		framesTotal + ", dropped " + framesDropped + ")");
-	                    	framesDropped += frames - 1;
-	                    }
+		                    framesTotal += frames;
 
-	                    if (len > 0) {
-	                        inbuf.flip();
-	                        FusionDrone.queueToShow++;
-	                        vi.addImageStream(inbuf);
-	                        drone.videoFrameReceived(0, 0, vi.getWidth(), vi.getHeight(), vi.getJavaPixelData(), 0, vi.getWidth());
-	                    }
+		                    if (frames > 1)
+		                    {
+		                     	framesDropped += frames - 1;
+		                    }
+		                    
+		                    if(len > 0)
+	                        {
+	                            inbuf.flip();
+	                            final BufferedVideoImage vi = new BufferedVideoImage();
+	                            vi.addImageStream(inbuf);
+	                            drone.videoFrameReceived(0, 0, vi.getWidth(), vi.getHeight(), vi.getJavaPixelData(), 0, vi.getWidth());
+	                        }
+	                    //}
 	                }
 	            }
-            }
-        } catch (Exception e) {
-            drone.changeToErrorState(e);
-        }
+	        } catch(Exception e)
+	        {
+	            drone.changeToErrorState(e);
+	        }
+
     }
 
 	public void stop() {

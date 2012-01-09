@@ -88,9 +88,6 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private int leftx, lefty;
 	private int rightx, righty;
 	
-    //Display
-	int displayWidth, displayHeight;
-	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -98,10 +95,8 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main3);
 		fDrone = this;
-		//Handling the actual screen size
-		Display display = getWindowManager().getDefaultDisplay();
-        displayWidth = display.getWidth();             
-        displayHeight = display.getHeight();
+
+		//Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 
 		//Getting Sensor Services for Control Device
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -279,7 +274,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
    	   switch(v.getId())
    	   {
    	   case R.id.mayday:
-   		  //We execute a builtin fligt-operation
+   		  //We execute a builtin flight-operation
  
    		 if (!isConnected) {
 		   		//do nothing
@@ -333,18 +328,12 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	
 	@Override
 	public void navDataReceived(NavData nd) {
-		//NavData.printState(nd);
-		//Log.v("DRONE", nd.getVisionTags().toString());
-		//if(nd.getVisionTags() != null)
-		//{
-		//	Log.v("DRONE", nd.getVisionTags().toString());
-		//}
-		
+				
 		batteryLife = nd.getBattery();
 		height = nd.getAltitude()*1000; //Multiply to allow for Altimeter Usage
-		pitch = nd.getPitch();
-		roll = nd.getRoll();
-		yaw = nd.getYaw();
+		pitch = nd.getPitch()*10; //Drone returns millidegrees
+		roll = nd.getRoll()*-10; //Drone returns millidegrees
+		yaw = nd.getYaw()+180; //Drone returns millidegrees
 	    
 		if (nd.isBatteryTooLow())
 		{
@@ -363,8 +352,8 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				//Orientation of Controller
 				mWebView.loadUrl("javascript:radial3.setValue("+String.valueOf(startX)+")");
 				//Yaw
-				mWebView.loadUrl("javascript:radial4.setValue("+String.valueOf(yaw)+")");
-			    //mWebView.loadUrl("javascript:radial5.setValue("+String.valueOf(height)+")");
+				mWebView.loadUrl("javascript:radial5.setValue("+String.valueOf(yaw)+")");
+			    //mWebView.loadUrl("javascript:radial4.setValue("+String.valueOf(height)+")");
 				//Horizon (Pitch and Roll)
 				mWebView.loadUrl("javascript:radial6.setPitchAnimated("+String.valueOf(pitch)+")");
 				mWebView.loadUrl("javascript:radial6.setRollAnimated("+String.valueOf(roll)+")");
@@ -558,12 +547,13 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	        scansize = scan;
 	        w = width;
 	        h = height;
+	        
 	    }
 
 		
 		@Override
 		protected Void doInBackground(Void... params) {
-			Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+
 			b =  Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.RGB_565);
 			b.setDensity(100);
 			return null;
@@ -571,8 +561,12 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		@Override
 		protected void onPostExecute(Void param) {;
 			//Log.v("Drone Control", "THe system memory is : " + Runtime.getRuntime().freeMemory());
+			
 			((BitmapDrawable)videoDisplay.getDrawable()).getBitmap().recycle(); 
-			videoDisplay.setImageDrawable(new BitmapDrawable(b));
+			//videoDisplay.setImageDrawable(new BitmapDrawable(b));
+	
+			videoDisplay.setImageBitmap(b);
+			
 			FusionDrone.queueToShow--;
 			//Log.v("Drone Control", "Queue = " + FusionDrone.queueToShow);
 		}
