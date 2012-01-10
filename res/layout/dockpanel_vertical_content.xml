@@ -6,11 +6,11 @@
         android:id="@+id/connectButton"
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="true"
-        android:text="Connect" android:layout_width="wrap_content" android:layout_marginTop="180dip"/>
+        android:text="Connect" android:layout_width="fill_parent" android:layout_marginTop="180dip"/>
 
 <Button
                         android:id="@+id/launchButton"
-                        android:layout_width="wrap_content"
+                        android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:layout_alignLeft="@+id/connectButton"
                         android:layout_alignRight="@+id/connectButton"
@@ -19,7 +19,7 @@
                         android:text="Launch!" />
 <Button
                         android:id="@+id/animateButton"
-                        android:layout_width="wrap_content"
+                        android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:layout_alignLeft="@+id/launchButton"
                         android:layout_alignRight="@+id/launchButton"
@@ -28,7 +28,7 @@
                         android:text="Animate" />
 <Button
                         android:id="@+id/blinkButton"
-                        android:layout_width="wrap_content"
+                        android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:layout_alignParentBottom="true"
                         android:layout_alignParentLeft="true"
@@ -37,21 +37,22 @@
                         android:text="Blink" />
 	    <Spinner
                         android:id="@+id/spinner1"
-                        android:layout_width="wrap_content"
+                        android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:drawSelectorOnTop="true"
-                        android:prompt="@string/Manoever" />
+                        android:prompt="@string/Manoever" android:layout_marginTop="50dip"/>
 
                     <Spinner
                         android:id="@+id/spinner2"
-                        android:layout_width="wrap_content"
+                        android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:prompt="@string/ManoeverDauer" />
+                        android:prompt="@string/ManoeverDur" />
 	    
             	    <Button
                         android:id="@+id/mayday"
-                        android:layout_width="wrap_content"
+                        
+                        android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:onClick="@string/ButtonClick"
-                        android:text="Go" />     
+                        android:text="Go" android:layout_marginTop="10dip" android:textSize="20dp" android:textStyle="bold"/>     
 </LinearLayout>

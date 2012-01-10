@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">FusionDrone</string>
+    <string name="hello">FusionDrone - The MORP Variant</string>
     <string name="app_name">FusionDrone</string>
-    <string name="Manoever">Flugmanöver</string>
+    <string name="Manoever">Flight Maneuver</string>
     <string name="ButtonClick">MyClickHandler</string>
-    <string name="ManoeverDauer">DauerManoever</string>
+    <string name="ManoeverDur">Maneuver Duration</string>
     <string name="dualjoystick">Dual Soft-Joystick</string>
 </resources>

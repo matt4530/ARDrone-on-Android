@@ -13,7 +13,6 @@ import java.util.Set;
 import android.util.Log;
 
 import com.codeminders.ardrone.video.BufferedVideoImage;
-import com.profusiongames.FusionDrone;
 
 public class VideoReader implements Runnable {
 	/**

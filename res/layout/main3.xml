@@ -24,8 +24,8 @@
 		android:text="@string/hello"
 		android:id="@+id/statusBar"
 		android:gravity="center_horizontal"
-		android:background="#B1DCFE"
-		android:textColor="#000000">
+		android:background="#66331100"
+		android:textColor="@android:color/white">
 	</TextView>
 
  
@@ -77,6 +77,7 @@
 		ma:contentLayoutId="@layout/dockpanel_vertical_content"
 		ma:handleButtonDrawableResourceId="@drawable/left_dock_handle" 
 		ma:isOpen="false" />
+    
 
 	<com.MobileAnarchy.Android.Widgets.DockPanel.DockPanel
 		android:layout_width="fill_parent" 

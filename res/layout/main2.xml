@@ -92,7 +92,7 @@
                         android:id="@+id/spinner2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:prompt="@string/ManoeverDauer" />
+                        android:prompt="@string/ManoeverDur" />
 
                     <Button
                         android:id="@+id/mayday"

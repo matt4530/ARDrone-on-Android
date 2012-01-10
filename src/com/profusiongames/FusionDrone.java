@@ -10,6 +10,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -75,8 +77,8 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private Button launchButton;
 	
 	private ImageView videoDisplay;
-	private Spinner flugfigur;
-	private Spinner manoeverzeit;
+	private Spinner flightfigure;
+	private Spinner maneuvretime;
 	
 	//Instrument Panel
     private WebView mWebView;
@@ -87,6 +89,8 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	DualJoystickView joystick;
 	private int leftx, lefty;
 	private int rightx, righty;
+	
+
 	
 
 	@Override
@@ -101,6 +105,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		//Getting Sensor Services for Control Device
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		mCompass = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+		
         //Inituializing GUI
 		getUIComponents();
 		
@@ -151,21 +156,21 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		statusBar = (TextView) findViewById(R.id.statusBar);
 
 		//Selecting one of the predefined flight maneuvre
-		flugfigur = (Spinner) findViewById(R.id.spinner1);
+		flightfigure = (Spinner) findViewById(R.id.spinner1);
 		ArrayAdapter adapter = ArrayAdapter.createFromResource(
-	            this, R.array.flugmanoever, android.R.layout.simple_spinner_item);
+	            this, R.array.FliMan, android.R.layout.simple_spinner_item);
 	    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-	    flugfigur.setAdapter(adapter);
-	    flugfigur.setSelection(6);
+	    flightfigure.setAdapter(adapter);
+	    flightfigure.setSelection(6);
 	    
 	    
 	    //Selecting the duration for the pre-configured flight maneuvre
-	    manoeverzeit = (Spinner) findViewById(R.id.spinner2);
+	    maneuvretime = (Spinner) findViewById(R.id.spinner2);
 		ArrayAdapter adapter1 = ArrayAdapter.createFromResource(
-	            this, R.array.flugmandauer, android.R.layout.simple_spinner_item);
+	            this, R.array.ManDur, android.R.layout.simple_spinner_item);
 	    adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-	    manoeverzeit.setAdapter(adapter1);
-	    manoeverzeit.setSelection(4);
+	    maneuvretime.setAdapter(adapter1);
+	    maneuvretime.setSelection(4);
 
 	    
 	    //Standard Button. These still have associated handler. The remaining elements use a common
@@ -281,7 +286,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
    		 } else if(isFlying) {
    		 try {
  
-   		     drone.playAnimation(((int) flugfigur.getSelectedItemPosition()), ((((int) manoeverzeit.getSelectedItemPosition())+1)*100));
+   		     drone.playAnimation(((int) flightfigure.getSelectedItemPosition()), ((((int) maneuvretime.getSelectedItemPosition())+1)*100));
    		     
    		 } 
 			catch (IOException e) {e.printStackTrace();}
@@ -294,7 +299,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
    			   		//do nothing
    		   } else if(isFlying) {
 			try { 
-				drone.playLED(1,10,2); //ARDroneLib/Soft/Common/led_animation.h (whole file, with details) for the leds animations
+				drone.playLED(1,10,2); //ARDroneLib/Soft/Common/led_animation.h (whole file, with details) for the LED animation
 				drone.playLED(2,10,2); 
 				drone.playLED(3,10,2); 
 				drone.playLED(4,10,2); 
@@ -331,9 +336,9 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				
 		batteryLife = nd.getBattery();
 		height = nd.getAltitude()*1000; //Multiply to allow for Altimeter Usage
-		pitch = nd.getPitch()*10; //Drone returns millidegrees
-		roll = nd.getRoll()*-10; //Drone returns millidegrees
-		yaw = nd.getYaw()+180; //Drone returns millidegrees
+		pitch = nd.getPitch()*-1; 
+		roll = nd.getRoll(); 
+		yaw = nd.getYaw(); 
 	    
 		if (nd.isBatteryTooLow())
 		{
@@ -424,6 +429,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				drone.addNavDataListener(FusionDrone.fDrone);
 				drone.addImageListener(FusionDrone.fDrone);
 				drone.selectVideoChannel(ARDrone.VideoChannel.HORIZONTAL_ONLY);
+				drone.setCombinedYawMode(true);
 				try {
 					//drone.sendTagDetectionOnData();
 					drone.sendVideoOnData();
@@ -555,7 +561,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		protected Void doInBackground(Void... params) {
 
 			b =  Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.RGB_565);
-			b.setDensity(100);
+			b.setDensity(100); //needed?
 			return null;
 		}
 		@Override
@@ -577,10 +583,11 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	
 	
 //Joystick Control and send of move-commands. Be careful the calculation of values was
-//taken from the Java-Drone project and is meant for a PS3 Controller. This has to be adapted
-//to the softjoystick!!! Currently it works but movements are really slow :-(
+//taken from the Java-Drone project and is meant for a PS3 Controller. This was adapted
+//to the softjoystick!!! Currently it works, but use at your own risk!
 	private void CalculateMove()
 	{
+		//The drone expects floats between -1.0 and 1.0
 		float left_right_tilt = 0f;
         float front_back_tilt = 0f;
         float vertical_speed = 0f;
@@ -588,26 +595,22 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 
         if(leftx != 0)
         {
-            left_right_tilt = ((float) leftx) / 128f;
-            //System.err.println("Left-Right tilt: " + left_right_tilt);
+            left_right_tilt = ((float) leftx) / 10f;
         }
 
         if(lefty != 0)
         {
-            front_back_tilt = ((float) lefty) / 128f;
-            //System.err.println("Front-back tilt: " + front_back_tilt);
+            front_back_tilt = ((float) lefty) / 10f;
         }
 
         if(rightx != 0)
         {
-            angular_speed = ((float) rightx) / 128f;
-            //System.err.println("Angular speed: " + angular_speed);
+            angular_speed = ((float) rightx) / 10f;
         }
 
         if(righty != 0)
         {
-            vertical_speed = -1 * ((float) righty) / 128f;
-            //System.err.println("Vertical speed: " + vertical_speed);
+            vertical_speed = ((float) righty) / 10f;
         }
 
         if(leftx != 0 || lefty != 0 || rightx != 0 || righty != 0)
@@ -645,8 +648,8 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 		@Override
 		public void OnMoved(int pan, int tilt) 
 		{
-			leftx = tilt;
-			lefty = pan;
+			leftx = pan;
+			lefty = tilt;
 			
 			CalculateMove();
 		}

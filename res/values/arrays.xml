@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string-array name="flugmanoever">
+    <string-array name="FliMan">
         <item>Phi-M30</item>
         <item>Phi-30</item>       
         <item>Theta-M30</item>
@@ -20,7 +20,7 @@
         <item>Double-Phi-Theta Mixed</item>
         <item>Mayday</item>     
     </string-array>
-    <string-array name="flugmandauer">
+    <string-array name="ManDur">
         <item >100</item>
         <item >200</item>
         <item >300</item>
