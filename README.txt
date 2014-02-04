@@ -1,5 +1,16 @@
 ***************************************************************************** 
+* This fork is for using the original project on tabletes such as the 
+* ASUS Transformer. Be careful when using it on standard phones.
 *
+* The soft-Joystick that is used, although modified, was originally
+* developed by MobileAnarchy under an OpenSource-License.
+* The original project homepage is located at: 
+* http://code.google.com/p/mobile-anarchy-widgets/
+*
+* Sensor Data is visualized by using the javascript version of the steelseries
+* Gauges: http://harmoniccode.blogspot.com/2011/04/steelseries-javascript-edition.html
+* In order to obtain flight instruments the branch mastered by Mark Crossley
+* https://github.com/HanSolo/SteelSeries-Canvas was used
 ***************************************************************************** 
 *
 *               README for FusionDrone

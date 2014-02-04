@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/item1" android:title="Max. Altitude">
+        <menu>
+            <item android:id="@+id/item4" android:title="1m"/>
+            <item android:id="@+id/item5" android:title="1,25m"/>
+            <item android:id="@+id/item6" android:title="1,5m"/>
+            <item android:id="@+id/item7" android:title="2m"/>
+        </menu>
+    </item>
+    <item android:id="@+id/item2" android:title="Manual Trim"></item>
+    <item android:id="@+id/item3" android:title="Outdoor Flight"></item>
+    <item android:id="@+id/item8" android:title="Video-Channel">
+        <menu>
+            <item android:id="@+id/item9" android:title="Horizontal Only"/>
+            <item android:id="@+id/item10" android:title="Vertical Only"/>
+            <item android:id="@+id/item11" android:title="Vertical in Horizontal"/>
+            <item android:id="@+id/item12" android:title="Horizontal in Vertical"/>
+        </menu>
+    </item>
+
+    
+
+</menu>

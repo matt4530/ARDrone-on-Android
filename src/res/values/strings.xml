@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">FusionDrone</string>
+    <string name="app_name">ARDrone_JavaDrone</string>
+    <string name="Manoever">Flugmanöver</string>
+    <string name="ButtonClick">MyClickHandler</string>
+    <string name="ManoeverDauer">DauerManoever</string>
+    <string name="dualjoystick">Dual Soft-Joystick</string>
+</resources>

@@ -3,36 +3,66 @@ package com.profusiongames;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
+import android.view.Display;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.webkit.WebChromeClient;
+import android.webkit.JsResult;
 
+
+import com.MobileAnarchy.Android.Widgets.Joystick.DualJoystickView;
+import com.MobileAnarchy.Android.Widgets.Joystick.JoystickMovedListener;
 import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.DroneVideoListener;
 import com.codeminders.ardrone.NavData;
 import com.codeminders.ardrone.NavDataListener;
+
+
+
 
 public class FusionDrone extends Activity implements NavDataListener, DroneVideoListener, SensorEventListener {
 
 	private static FusionDrone fDrone;
 	private static ARDrone drone;
 	private static SensorManager sensorManager;
-
+	private static Sensor mCompass;
+	
 	private static boolean isConnected = false;
 	private static boolean isFlying = false;
-	private int batteryLife = 0;
+	
+	//Sensor Data
+	private int batteryLife = 0;	
+	private float height = 0;
+	private float pitch = 0;
+	private float roll = 0;	
+	private float yaw = 0;
+	
+	
 	public static int queueToShow = 0;
 	
 	private double startX = -1f;
@@ -45,18 +75,38 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private Button connectionStartButton;
 	private ProgressBar connectionWhirlProgress;
 	private Button launchButton;
-	private TextView batteryText;
+	
 	private ImageView videoDisplay;
-	private Button animateButton;
-	/* Components */
+	private Spinner flightfigure;
+	private Spinner maneuvretime;
+	
+	//Instrument Panel
+    private WebView mWebView;
+    private Handler mHandler = new Handler();
+	
+	/* Components Joystick */
+
+	DualJoystickView joystick;
+	private int leftx, lefty;
+	private int rightx, righty;
+	
+
+	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.main);
+		setContentView(R.layout.main3);
 		fDrone = this;
+
+		//Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+
+		//Getting Sensor Services for Control Device
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+		mCompass = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+		
+        //Inituializing GUI
 		getUIComponents();
 		
 	}
@@ -75,7 +125,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	@Override
 	protected void onResume() {
         super.onResume();
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), 3);
+        sensorManager.registerListener(this, mCompass, SensorManager.SENSOR_DELAY_NORMAL);
     }
 	@Override
     protected void onPause() {
@@ -105,6 +155,26 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private void getUIComponents() {
 		statusBar = (TextView) findViewById(R.id.statusBar);
 
+		//Selecting one of the predefined flight maneuvre
+		flightfigure = (Spinner) findViewById(R.id.spinner1);
+		ArrayAdapter adapter = ArrayAdapter.createFromResource(
+	            this, R.array.FliMan, android.R.layout.simple_spinner_item);
+	    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+	    flightfigure.setAdapter(adapter);
+	    flightfigure.setSelection(6);
+	    
+	    
+	    //Selecting the duration for the pre-configured flight maneuvre
+	    maneuvretime = (Spinner) findViewById(R.id.spinner2);
+		ArrayAdapter adapter1 = ArrayAdapter.createFromResource(
+	            this, R.array.ManDur, android.R.layout.simple_spinner_item);
+	    adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+	    maneuvretime.setAdapter(adapter1);
+	    maneuvretime.setSelection(4);
+
+	    
+	    //Standard Button. These still have associated handler. The remaining elements use a common
+	    //handler "MyClickHandler" to save resources
 		connectionStartButton = (Button) findViewById(R.id.connectButton);
 		connectionWhirlProgress = (ProgressBar) findViewById(R.id.progressBar1);
 		connectionWhirlProgress.setVisibility(ProgressBar.INVISIBLE);
@@ -126,36 +196,134 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 			}
 		});
 		launchButton = (Button)findViewById(R.id.launchButton);
-		//launchButton.setVisibility(Button.INVISIBLE);
 		launchButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				Log.v("DRONE", "Clicked Launch button");
 				if (!isConnected) {
 					//do nothing
 				} else if(isFlying) {
-					try { drone.land(); launchButton.setText("Takeoff"); isFlying = false;} 
+					try { drone.land(); 
+					      launchButton.setText("Takeoff"); 
+					      isFlying = false;} 
 					catch (IOException e) {e.printStackTrace();}
 				} else	{
-					try { drone.takeOff(); launchButton.setText("Land"); isFlying = true;}
+					try { drone.trim();
+					      drone.takeOff(); 
+					      launchButton.setText("Land"); 
+					      isFlying = true;}
 					catch (IOException e) {e.printStackTrace();}
 				}
 			}
 		});
-		batteryText = (TextView) findViewById(R.id.batteryStatusText);
+
+		//Displaying battery and height status
+		//battery = (TextProgressBar) findViewById(R.id.battprogressBar);
+		//battery.setText("Battery Level");
+		//altitude = (Gauge) findViewById(R.id.meter2);
+		mWebView = (WebView) findViewById(R.id.webView1);
+		WebSettings webSettings = mWebView.getSettings();
+        webSettings.setSavePassword(false);
+        webSettings.setSaveFormData(false);
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setSupportZoom(false);
+        
+        mWebView.setWebChromeClient(new MyWebChromeClient());
+
+        mWebView.addJavascriptInterface(new DemoJavaScriptInterface(), "demo");
+        mWebView.loadUrl("file:///android_asset/Gauge.html");
+		
+		//Take care of the streaming video
 		videoDisplay = (ImageView) findViewById(R.id.droneVideoDisplay);
-		animateButton = (Button) findViewById(R.id.animateButton);
-		animateButton.setOnClickListener(new View.OnClickListener() {
-		public void onClick(View v) {
+		
+		//Initialize the Soft-Joysticks
+        joystick = (DualJoystickView)findViewById(R.id.dualjoystickView);
+        joystick.setOnJostickMovedListener(_listenerLeft, _listenerRight);
+             
+        
+    
+	}
+	
+    final class DemoJavaScriptInterface {
+
+        DemoJavaScriptInterface() {
+        }
+
+        /**
+         * This is not called on the UI thread. Post a runnable to invoke
+         * loadUrl on the UI thread.
+         */
+        public void clickOnAndroid() {
+            mHandler.post(new Runnable() {
+                public void run() {
+                    mWebView.loadUrl("javascript:wave()");
+                }
+            });
+
+        }
+    }
+
+    /**
+     * Provides a hook for calling "alert" from javascript. Useful for
+     * debugging your javascript.
+     */
+    final class MyWebChromeClient extends WebChromeClient {
+        @Override
+        public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+            result.confirm();
+            return true;
+        }
+    }
+    
+	public void MyClickHandler(View v) {
+  	  
+   	   switch(v.getId())
+   	   {
+   	   case R.id.mayday:
+   		  //We execute a builtin flight-operation
+ 
+   		 if (!isConnected) {
+		   		//do nothing
+   		 } else if(isFlying) {
+   		 try {
+ 
+   		     drone.playAnimation(((int) flightfigure.getSelectedItemPosition()), ((((int) maneuvretime.getSelectedItemPosition())+1)*100));
+   		     
+   		 } 
+			catch (IOException e) {e.printStackTrace();}
+		   	}
+   		 
+	        break;
+   	   case R.id.blinkButton:
+  		  //Licht
+   		   if (!isConnected) {
+   			   		//do nothing
+   		   } else if(isFlying) {
+			try { 
+				drone.playLED(1,10,2); //ARDroneLib/Soft/Common/led_animation.h (whole file, with details) for the LED animation
+				drone.playLED(2,10,2); 
+				drone.playLED(3,10,2); 
+				drone.playLED(4,10,2); 
+			} 
+			catch (IOException e) {e.printStackTrace();}
+   		   	}
+	        break;
+   	   case R.id.animateButton:
+   		   //Video
 			try {
 				if(drone != null)
 					drone.sendVideoOnData();
+
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-			}
-		});
-	}
+   	       break;
+   	   
 
+  	  }
+   	    	 }
+
+	
+	
 	public static ARDrone getARDrone() {
 		return drone;
 	}
@@ -165,16 +333,37 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	
 	@Override
 	public void navDataReceived(NavData nd) {
-		//NavData.printState(nd);
-		//Log.v("DRONE", nd.getVisionTags().toString());
-		if(nd.getVisionTags() != null)
-		{
-			Log.v("DRONE", nd.getVisionTags().toString());
-		}
+				
 		batteryLife = nd.getBattery();
+		height = nd.getAltitude()*1000; //Multiply to allow for Altimeter Usage
+		pitch = nd.getPitch()*-1; 
+		roll = nd.getRoll(); 
+		yaw = nd.getYaw(); 
+	    
+		if (nd.isBatteryTooLow())
+		{
+			if(isFlying) { try { drone.land(); Thread.sleep(400);} catch (Exception e) {e.printStackTrace();}} //if going to disconnect, but still flying, attempt to tell drone to land
+			connectionStartButton.setEnabled(false);
+			connectionStartButton.setText("Disconnecting...");
+			(new DroneEnder()).execute(FusionDrone.drone);
+		}
+		
 		runOnUiThread(new Runnable() {
 			public void run() {
-				batteryText.setText("Battery Life: " + batteryLife + "%");
+				//Battery State
+				mWebView.loadUrl("javascript:radial1.setValue("+String.valueOf(batteryLife)+")");
+				//Altitude
+				mWebView.loadUrl("javascript:radial2.setValue("+String.valueOf(height)+")");				
+				//Orientation of Controller
+				mWebView.loadUrl("javascript:radial3.setValue("+String.valueOf(startX)+")");
+				//Yaw
+				mWebView.loadUrl("javascript:radial5.setValue("+String.valueOf(yaw)+")");
+			    //mWebView.loadUrl("javascript:radial4.setValue("+String.valueOf(height)+")");
+				//Horizon (Pitch and Roll)
+				mWebView.loadUrl("javascript:radial6.setPitchAnimated("+String.valueOf(pitch)+")");
+				mWebView.loadUrl("javascript:radial6.setRollAnimated("+String.valueOf(roll)+")");
+
+				
 			}
 		});
 	}
@@ -183,16 +372,6 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	public void frameReceived(final int startX, final int startY, final int w, final int h, final int[] rgbArray, final int offset, final int scansize) 
 	{
 		(new VideoDisplayer(startX, startY, w, h, rgbArray, offset, scansize)).execute();
-		/*		
-		Log.v("Drone Control", "Frame recieved on FusionDrone   rgbArray.length = " + rgbArray.length + "       width = " + w + " height = " + h);
-		try {
-			drone.playLED(4, 20, 1);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
-		
 	}
 
 
@@ -207,21 +386,22 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	private float sensorThreshold = 3;
 	@Override
 	public void onSensorChanged(SensorEvent e) {
-		if(Math.random() < 1) return;
-		Log.v("DRONE", "sensor: " + e.sensor + ", x: " + MathUtil.trunk(e.values[0]) + ", y: " + MathUtil.trunk(e.values[1]) + ", z: " + MathUtil.trunk(e.values[2]));
-		if(startX == -1f) 
-		{
+		
+		//if(Math.random() < 1) return;
+		//Log.v("DRONE", "sensor: " + e.sensor + ", x: " + MathUtil.trunk(e.values[0]) + ", y: " + MathUtil.trunk(e.values[1]) + ", z: " + MathUtil.trunk(e.values[2]));
+		//if(startX == -1f) 
+		//{
 			startX = e.values[0];
 			startY = e.values[1];
 			startZ = e.values[2];
-		}
+		//}
 		float shortX = MathUtil.trunk(MathUtil.getShortestAngle(e.values[0],(float) startX));
 		float shortY = MathUtil.trunk(MathUtil.getShortestAngle(e.values[1],(float) startY));
 		float shortZ = MathUtil.trunk(MathUtil.getShortestAngle(e.values[2],(float) startZ));
 		if( MathUtil.abs(shortX) <  sensorThreshold) shortX = 0;// do nothing
 		if( MathUtil.abs(shortY) <  sensorThreshold) shortY = 0;// do nothing
 		if( MathUtil.abs(shortZ) <  sensorThreshold) shortZ = 0;// do nothing
-		Log.v("DRONE", "sensor difference: x: " + shortX + ", y: " + shortY + ", z: " + shortZ);
+		//Log.v("DRONE", "sensor difference: x: " + shortX + ", y: " + shortY + ", z: " + shortZ);
 	} 
 	
 
@@ -249,6 +429,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				drone.addNavDataListener(FusionDrone.fDrone);
 				drone.addImageListener(FusionDrone.fDrone);
 				drone.selectVideoChannel(ARDrone.VideoChannel.HORIZONTAL_ONLY);
+				drone.setCombinedYawMode(true);
 				try {
 					//drone.sendTagDetectionOnData();
 					drone.sendVideoOnData();
@@ -306,6 +487,14 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				drone.clearStatusChangeListeners();
 				drone.disconnect();
 				Log.v("DRONE", "Disconnected to ARDrone" + FusionDrone.drone);
+				mWebView.loadUrl("javascript:radial1.setValue("+String.valueOf(0)+")");
+				mWebView.loadUrl("javascript:radial2.setValue("+String.valueOf(0)+")");				
+				mWebView.loadUrl("javascript:radial3.setValue("+String.valueOf(0)+")");
+				mWebView.loadUrl("javascript:radial4.setValue("+String.valueOf(0)+")");
+			    mWebView.loadUrl("javascript:radial5.setValue("+String.valueOf(0)+")");
+				mWebView.loadUrl("javascript:radial6.setPitchAnimated("+String.valueOf(0)+")");
+				mWebView.loadUrl("javascript:radial6.setRollAnimated("+String.valueOf(0)+")");
+				
 				return true;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -328,7 +517,7 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 				connectionStartButton.setText("Connect...");
 				connectionStartButton.setEnabled(true);
 				//launchButton.setVisibility(Button.INVISIBLE);
-				batteryText.setText("Battery Status");
+				
 			} else {
 				connectionStartButton.setText("Error 2. Retry?");
 			}
@@ -364,22 +553,249 @@ public class FusionDrone extends Activity implements NavDataListener, DroneVideo
 	        scansize = scan;
 	        w = width;
 	        h = height;
+	        
 	    }
 
 		
 		@Override
 		protected Void doInBackground(Void... params) {
+
 			b =  Bitmap.createBitmap(rgbArray, offset, scansize, w, h, Bitmap.Config.RGB_565);
-			b.setDensity(100);
+			b.setDensity(100); //needed?
 			return null;
 		}
 		@Override
 		protected void onPostExecute(Void param) {;
 			//Log.v("Drone Control", "THe system memory is : " + Runtime.getRuntime().freeMemory());
+			
 			((BitmapDrawable)videoDisplay.getDrawable()).getBitmap().recycle(); 
-			videoDisplay.setImageDrawable(new BitmapDrawable(b));
+			//videoDisplay.setImageDrawable(new BitmapDrawable(b));
+	
+			videoDisplay.setImageBitmap(b);
+			
 			FusionDrone.queueToShow--;
 			//Log.v("Drone Control", "Queue = " + FusionDrone.queueToShow);
 		}
+	}
+
+	
+	
+	
+	
+//Joystick Control and send of move-commands. Be careful the calculation of values was
+//taken from the Java-Drone project and is meant for a PS3 Controller. This was adapted
+//to the softjoystick!!! Currently it works, but use at your own risk!
+	private void CalculateMove()
+	{
+		//The drone expects floats between -1.0 and 1.0
+		float left_right_tilt = 0f;
+        float front_back_tilt = 0f;
+        float vertical_speed = 0f;
+        float angular_speed = 0f;
+
+        if(leftx != 0)
+        {
+            left_right_tilt = ((float) leftx) / 10f;
+        }
+
+        if(lefty != 0)
+        {
+            front_back_tilt = ((float) lefty) / 10f;
+        }
+
+        if(rightx != 0)
+        {
+            angular_speed = ((float) rightx) / 10f;
+        }
+
+        if(righty != 0)
+        {
+            vertical_speed = ((float) righty) / 10f;
+        }
+
+        if(leftx != 0 || lefty != 0 || rightx != 0 || righty != 0)
+        {
+        	if (!isConnected) 
+        	{
+        		//do nothing
+        	}
+        	else if(isFlying) 
+        	{
+        		try {drone.move(left_right_tilt, front_back_tilt, vertical_speed, angular_speed);}
+        		catch (IOException e) {e.printStackTrace();}
+   	        }			
+        }    
+        else
+        {
+        	if (!isConnected) 
+        	{
+        		//do nothing
+        	}
+        	else if(isFlying) 
+        	{
+        		try {drone.hover();}
+        		catch (IOException e) {e.printStackTrace();}
+   	        }			
+        }	
+           
+    }
+
+	
+	
+	//The left joystick controls movements in the x-dimension
+    private JoystickMovedListener _listenerLeft = new JoystickMovedListener() {
+
+		@Override
+		public void OnMoved(int pan, int tilt) 
+		{
+			leftx = pan;
+			lefty = tilt;
+			
+			CalculateMove();
+		}
+
+		@Override
+		public void OnReleased() {
+			
+			if (!isConnected) {
+		   		//do nothing
+	       } else if(isFlying) {
+		        try { 
+		        	drone.hover();		} 
+		catch (IOException e) {e.printStackTrace();}
+	   	}			
+			
+			
+
+		}
+		
+		public void OnReturnedToCenter() {
+			leftx=0;
+			lefty=0;
+			CalculateMove();
+		};
+	}; 
+
+	//the right joystick controls movement in the y and z dimension
+    private JoystickMovedListener _listenerRight = new JoystickMovedListener() {
+
+		@Override
+		public void OnMoved(int pan, int tilt) 
+		{
+			righty = tilt*-1;
+			rightx = pan;
+			
+			CalculateMove();
+		}
+
+		@Override
+		public void OnReleased() {
+        //do Nothing
+		}
+		
+		public void OnReturnedToCenter() {
+			rightx=0;
+			righty=0;
+			CalculateMove();
+		};
+	}; 
+
+	//Taking Care of the Config Menu
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.configmenu, menu);
+	    return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+	        
+	        //Manual Trim and standard configuration                    
+	        case R.id.item2:     if (!isConnected) {//do nothing
+	        					 } else if(!isFlying) {
+	        						   try { 
+	        							    drone.trim();
+	        		                        drone.setConfigOption("control:altitude_max", "2000");
+	        		                        drone.setConfigOption("control:altitude_min", "500");
+	        		                        drone.setConfigOption("control:euler_angle_max", "0.2");
+	        		                        drone.setConfigOption("control:control_vz_max", "2000.0");
+	        		                        drone.setConfigOption("control:control_yaw", "2.0");						   	
+	        						       } 
+	        						   catch (IOException e) {e.printStackTrace();}
+	        					 }		 
+	                             break;
+	        //Preparing for Outdoor Flight                     
+	        case R.id.item3:     Toast.makeText(this, "Flying Outdoor", Toast.LENGTH_LONG).show();
+	        					 break;
+	        					//Submenu with predefined choices regarding max. flightlevel
+	        case R.id.item4:    if (!isConnected) {//do nothing
+								 } else if(!isFlying) {
+									   try { 
+										   drone.setConfigOption("control:altitude_max", "1000");
+									       } 
+									   catch (IOException e) {e.printStackTrace();}
+								 }		
+	                             break;
+	        case R.id.item5:     if (!isConnected) {//do nothing
+								 } else if(!isFlying) {
+									   try { 
+										   drone.setConfigOption("control:altitude_max", "1250");
+									       } 
+									   catch (IOException e) {e.printStackTrace();}
+								 }	
+					            break;
+	        case R.id.item6:     if (!isConnected) {//do nothing
+								 } else if(!isFlying) {
+									   try { 
+										   drone.setConfigOption("control:altitude_max", "1500");
+									       } 
+									   catch (IOException e) {e.printStackTrace();}
+								 }	
+					            break;
+	        case R.id.item7:    if (!isConnected) {//do nothing
+								 } else if(!isFlying) {
+									   try { 
+										   drone.setConfigOption("control:altitude_max", "2000");
+									       } 
+									   catch (IOException e) {e.printStackTrace();}
+								 }	
+            break;
+            //Video-Channel
+	        case R.id.item9:    if (!isConnected) {//do nothing
+								 } else if(!isFlying) {
+									   try { 
+										   drone.setConfigOption("video:video_channel", "0");
+									       } 
+									   catch (IOException e) {e.printStackTrace();}
+								 }	
+	        					 break;
+	        case R.id.item10:    if (!isConnected) {//do nothing
+			 } else if(!isFlying) {
+				   try { 
+					   drone.setConfigOption("video:video_channel", "1");
+				       } 
+				   catch (IOException e) {e.printStackTrace();}
+			 }	
+            break;
+	        case R.id.item11:    if (!isConnected) {//do nothing
+			 } else if(!isFlying) {
+				   try { 
+					   drone.setConfigOption("video:video_channel", "2");
+				       } 
+				   catch (IOException e) {e.printStackTrace();}
+			 }	
+           break;
+	       case R.id.item12:    if (!isConnected) {//do nothing
+			 } else if(!isFlying) {
+				   try { 
+					   drone.setConfigOption("video:video_channel", "3");
+				       } 
+				   catch (IOException e) {e.printStackTrace();}
+			 }	
+           break;
+	    }
+	    return true;
 	}
 }

@@ -1,0 +1,131 @@
+<!doctype html>
+<head>
+	<meta charset=utf-8>
+	<title>Canvas Steel</title>
+	<link rel=stylesheet href=css/style.css type=text/css charset=utf-8>
+</head>
+<body onload=init() bgcolor="#0A2A22">
+    <table>
+ 
+        <tr>
+            <td width=100%>
+                <canvas id=canvasRadial1 width=100 height=200>No canvas in your browser...sorry...</canvas>
+	            <canvas id=canvasRadial2 width=100 height=200></canvas>
+	            <canvas id=canvasRadial3 width=100 height=100></canvas>
+	            <canvas id=canvasRadial4 width=100 height=100></canvas>
+				<canvas id=canvasRadial5 width=100 height=100></canvas>
+	            <canvas id=canvasRadial6 width=100 height=100></canvas>
+				<canvas id=canvasRadial7 width=100 height=100></canvas>
+				<canvas id=canvasRadial8 width=100 height=100></canvas>
+            </td>
+        </tr>
+ 
+    </table>
+</body>
+
+<script language="javascript">
+    var radial1;
+	var radial2;
+	var radial3;
+	var radial4;
+	var radial5;
+	var radial6;
+  	var radial7;
+
+
+	function init()
+	{
+		// Define some sections
+        var sections1 = Array(steelseries.Section(25, 50, 'rgba(220, 220, 0, 0.3)'),
+                             steelseries.Section(50, 75, 'rgba(0, 0, 220, 0.3)'),
+                             steelseries.Section(75, 100, 'rgba(0, 220, 0, 0.3)'));
+							 
+		var sections2 = Array(steelseries.Section(0, 100, 'rgba(220, 220, 0, 0.3)'),
+                             steelseries.Section(100, 150, 'rgba(0, 0, 220, 0.3)'),
+                             steelseries.Section(150, 200, 'rgba(0, 220, 0, 0.3)'));					 
+
+		// Define one area
+        		
+				
+		var areas1 = Array(steelseries.Section(0, 25, 'rgba(220, 0, 0, 0.3)'));
+		var areas2 = Array(steelseries.Section(200, 600, 'rgba(220, 0, 0, 0.3)'));
+
+
+		// Initialzing gauge
+
+
+	    radial1 = new steelseries.Radial('canvasRadial1', {
+                            gaugeType: steelseries.GaugeType.TYPE4,
+							frameDesign: steelseries.FrameDesign.BLACK_METAL,
+							backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
+							valueColor: steelseries.ColorDef.YELLOW,
+							lcdColor: steelseries.LcdColor.YELLOW,
+							ledColor: steelseries.LedColor.GREEN_LED,
+							size: 150,
+                            section: sections1,
+                            area: areas1,
+                            titleString: "Batt.",
+                            unitString: "%",
+                            threshold: 25,
+                            lcdVisible: true
+                            });
+
+		radial2 = new steelseries.Altimeter('canvasRadial2', {
+                            gaugeType: steelseries.GaugeType.TYPE3,
+							frameDesign: steelseries.FrameDesign.BLACK_METAL,
+							backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
+							valueColor: steelseries.ColorDef.YELLOW,
+							lcdColor: steelseries.LcdColor.YELLOW,
+							ledColor: steelseries.LedColor.RED_LED,
+							size: 150,
+                            titleString: 'Alt.',
+                            unitString: 'cm',
+							maxValue: 600,
+							threshold: 200,
+							section: sections2,
+                            lcdVisible: true
+                            });			
+							
+		radial3 =  new steelseries.Compass('canvasRadial3', {
+                            frameDesign: steelseries.FrameDesign.BLACK_METAL,
+							backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
+							valueColor: steelseries.ColorDef.YELLOW,
+							ledColor: steelseries.LedColor.RED_LED,
+							size: 150
+                            });
+
+        radial4 = new steelseries.WindDirection('canvasRadial4', {
+                            frameDesign: steelseries.FrameDesign.BLACK_METAL,
+							backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
+							valueColor: steelseries.ColorDef.YELLOW,size: 150,
+							lcdColor: steelseries.LcdColor.YELLOW,
+							lcdVisible: true
+                            });
+
+        radial5 = new steelseries.Level('canvasRadial5', {
+                            frameDesign: steelseries.FrameDesign.BLACK_METAL,
+							backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
+							valueColor: steelseries.ColorDef.YELLOW,
+							size: 150,
+                            decimalsVisible: false
+                            });
+
+        radial6 = new steelseries.Horizon('canvasRadial6', {
+                            frameDesign: steelseries.FrameDesign.BLACK_METAL,
+							backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
+							valueColor: steelseries.ColorDef.YELLOW,
+							size: 150
+                            });	
+							
+		 radial7 = new steelseries.Clock('canvasRadial8', {
+                            frameDesign: steelseries.FrameDesign.BLACK_METAL,
+							backgroundColor: steelseries.BackgroundColor.LIGHT_GRAY,
+							valueColor: steelseries.ColorDef.YELLOW,
+							size:150
+                            });					
+	}
+
+    
+</script>
+<script type=text/javascript src=js/tween-min.js></script>
+<script type=text/javascript src=js/steelseries-min.js></script>
